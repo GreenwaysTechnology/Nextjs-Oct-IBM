@@ -1,0 +1,393 @@
+			 									 Next.js
+...........................................................................................................................................................................................................................................
+
+Software Req:
+
+1.Node.js
+2.VSCODE
+
+Pre Knowledge:
+
+1.JavaScript
+2.React fundamentals
+
+What you are going to learn?
+
+1.Next.js UI development
+2.REST api development
+3.Database Programming Using Prisma ORM Framework
+4.GraphQL with Apollo Framework
+5.Connecting Next.js with Apollo Framework
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+				
+											Next js 
+...................................................................................................................................................................................................................................
+What is Next?
+		 Next is a flexible "React framework" that gives you building blocks to create fast "web applications".
+
+What is React?
+         	React is JavaScript lib to build "Single Page Web applications"/SPA 
+
+What is web app?
+  Type of distributed app, deployed at server , accessed over network(internet) vi various network protocols like http,  tcp, smtp...
+  Web apps works based on request and response model.
+  Web apps are hosted on server called web server.
+
+Web server receives request , runs a program, that program returns response to the client.
+
+Response would be document.
+=>HTML
+
+other responses types
+XML,JSON, Documents, images, videos.........
+
+What is web and why it was created?
+
+  	Tim Berners-Lee, a British scientist, invented the World Wide Web (WWW) in 1989, while working at CERN. The web was originally conceived and developed to meet the demand for automated information-sharing between scientists in universities and institutes around the world.
+
+The first Web browser is line mode web browser, launched in 1992.
+The first web server is NeXT computer
+The first web page , launched http://info.cern.ch/hypertext/WWW/TheProject.html
+
+
+Technology stack:
+................
+1.HTML
+2.Webserver - Next Computer
+3.LineMode Web Browser
+4.HTTP protocol.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&	
+											Types of Web application
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+1.Static web applications - 1989 to 1995
+
+    Hard coded html pages, Prepared html pages kept at server, the web server will send those html pages to clients - browsers
+
+Do you think Static web applications still exits?
+  Yes!, but we don't prepare the html pages by hand.. rather we ask the server to prepare..
+
+2.Dynamic Content generation application(1996 to till date)
+
+  After 1995, many people thought that how we can use web for biz information system
+
+How to share biz information via internet?
+   Generally biz data is stored in databases , how to embed database data into html pages.
+
+ 1.web server need to talk to database
+ 2.web server need to prepare html pages based on database records
+ 3.Those information must be transported to web clients.
+
+Web server core design to get client request and send html response to the client.
+Along with web server, something was introduced called "Programming language runtime"
+
+Tech stacks:
+
+1.CGI With C language and Perl script.
+2.Java Servlets and JSP
+3.Active Server pages - ASP
+4.PHP
+
+3.Web services-1998 to till date
+
+	 Rise of ECommerce, using internet and web how to exchange data between two biz organizations.
+ The existing html technology was not suitable to send and receive data because html is just   user interface document language.
+
+ We need , data to be exchanged, that's where new data model was created called 'XML'
+xml based web apps called web services.
+
+SOAP protocol was created to transfer XML based documents "SOAP based webservices"
+
+After 2005 SOAP based web services, started failing due to mobile computing.
+
+New Web services  were designed called "Restful Web services"
+
+Restful web services were used to build any type of data formats like json,xml,pdf,html etc...
+
+4.Client side web apps called "Single Page Web Apps"(2007 to till date)
+
+Single page web apps are built using JavaScript at client side where as server side web services(REST apis) are used.
+
+SPA Tech stack:
+HTML 5,CSS 3, JavaScript.
+
+Frameworks build based on SPA
+1.Angular js |Angular
+2.react js
+3.vue js
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								.				React as SPA lib
+......................................................................................................................................................................................................................................
+React.js was created by Facebook , in order to build SPA applications for browsers.
+
+Advantages of SPA:
+
+1.Pages are created  at client side, so server load is completely removed
+2.SPA reduces the lot of physical pages after deployment.
+3.Clear separations of concerns.
+
+Drawbacks of SPA:
+................................
+
+1.SEO Challenges
+     SPA applications dynamically load content via JavaScript, so search engine crawlers might not see all the page content.
+    It impacts poor search ranking and visibility.
+2.Inital Load Time
+    The browser must download entire js bundle before showing content, but now a days this problem has been fixed using lazy loading feature
+3.Security Risks:
+     SPAs are Vulnerable to Cross Site Scripting attacks (XSS) 
+
+Browser history issues, memory leaks and Performance degradation 
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+			To solve SEO Problems, new Technology was created called "SSR" - Server Side Rendering
+
+		SSR is a technique where your web application's HTML is generated on the server instead of in the browser
+
+Why SSR?
+1.Better SEO
+   Search engines get complete HTML , making it easier to index.
+2.Faster first Paint
+    The user sees the page sooner, especially on slow networks
+
+..................................................................................................................................................................................................................................	 											Rendering Types
+..................................................................................................................................................................................................................................
+What is Rendering?
+   Render means preparation, HTML Page preparation...
+
+Rendering Types:
+1.CSR- Client side Rendering.
+   HTML Pages are prepared at client side - Pure SPA Applications
+2.SSR  -Server Side rendering
+   HTML Pages are prepared at server side - Dynamic Content Generation applications.
+
+
+Based on these rendering type, we can classify other rendering
+
+1.Universal rendering /Hybrid Rendering
+  Server + Client side , combing both rendering 
+
+2.Full SSR and Partial SSR
+    Partial SSR is nothing but only "index.html" is compiled at server , rest of the application is rendered at client side.
+    			
+					Full SSR is nothing but "index.html" and other pages are compiled at server....
+
+......................................................................................................................................................................................................................................
+									      When Rendering can happen
+							 		    (when html pages are prepared)
+........................................................................................................................................................................................................................................
+1.Request time
+2.Build time
+
+1.Request time :
+ When user types url 
+
+  http://www.example.com/products--------------->Server Receives Request----Prepares Page--send   that page to client.
+ Technologies : jsp,asp,php
+
+2.Build time
+    Build is nothing but, preparing app for production.. before hosting we have to prepare the   app
+  During build phase, we can prepare html pages/render html pages 
+
+SSG -  Static Site Generations:
+......................................................
+	Building web sites/apps during build phase is called SSG.
+
+Why SSG?
+  Super fast page access
+
+							Based On SSG , There is specification is available "JAM Stack"
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									ISR - Incremental Static Rendering
+......................................................................................................................................................................................................................................
+
+SSG - Build time or ahead of time
+SSR - Request time
+
+ISR = SSG + SSR - Build time + request time 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										What is Next.js?
+
+Next js is a framework that helps to build web apps of all types
+  
+ you can build Full SSR apps..
+ you can build SSR With Request time
+ you can build SSG with Build time -  JAM Stacks
+ you can build SSR with CSR  - Server + SPA - Hybrid rendering
+ you can build rest API also - Web services
+ You can build ISR apps - build time + request time
+
+							 "You cant build pure SPA apps like react with redux"
+
+Using Next you can build 
+     Pure server side apps with database access, other external API access.....
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+				              				 Next js UI layer - Next JS APP architecture
+...........................................................................................................................................................................................................................................
+Next js uses "react core features" to build UI layer...
+
+React core features:
+1.React component driven
+2.React uses data mutation techniques like props and state
+3.React uses event listeners for interactions
+4.React hooks
+
+Next.js tech stack:
+
+1.React as ui layer
+2.Next does not recommend to use "redux"
+3.Next uses api layer- rest api development
+4.Next can talk to any database via orm frameworks...
+.......................................................................................................................................................................................................................................
+									Next js framework and Runtime Architecture
+.......................................................................................................................................................................................................................................
+
+Next js uses "Rust based build system" where as react uses web pack build ....
+
+What is Rust?
+	 It is programming language, used to build Next.js apps. Next core engine is written in Rust only.
+
+Next.js Compiler:
+..........................
+ Next js Compiler is written using RUST Using SWC (Speedy Web Compiler).
+	https://swc.rs/docs/getting-started
+
+		SWC allows next js to transform and minify the js code for production. This replaces babel.
+					SWC is 20x faster than Babel, it is embedded inside next js
+
+Turbo pack:
+ 	Turbopack is an incremental bundler optimized for JavaScript and TypeScript, written in Rust, and built into Next.js. 
+ Turbopack can be used in Next.js in both the pages and app directories for faster local development
+
+...........................................................................................................................................................................................................................................
+										NEXT JS Getting Started
+..........................................................................................................................................................................................................................................
+
+How to install next js and how to create app?
+
+System Req:
+
+1.Node.js 18.18 or later
+2.OS - any os
+3.vs code.
+
+Installing/Create next app:
+..........................
+
+There are two ways :
+
+1.automatic way
+   We recommend starting a new Next.js app using create-next-app, which sets up everything automatically for you. To create a project, run:
+   npx create-next-app@latest
+
+2.manual way
+ Just create folder and app structure your self and install packages
+ To manually create a new Next.js app, install the required packages:
+ npm install next@latest react@latest react-dom@latest
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											Next application development pattern
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+There are two ways we can build next application
+
+1.Using Page Router
+	It is old way / traditional way of building next application , Next version before 13.
+	It is not recommended way of building modern next application
+2.Using App Router
+    It is the latest way of building next application, after next version 12
+    It is recommended way of building next application
+
+Languages are used to build next application
+
+1.Typescript
+2.Javascript
+
+Steps to create project:
+.......................................
+npx create-next-app@latest
+√ What is your project named? ... hello-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+.................................................................................................................................................................................................................................................
+								     Exploring Project Structure
+............................................................................................................................................................................................................................................
+
+package.json
+{
+  "name": "hello-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "next": "15.4.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
+}
+
+next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+
+export default nextConfig;
+
+jsonconfig.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+This is compiler configuration
+
+Tailwind configuration - postcss.config.mjs
+const config = {
+  plugins: ["@tailwindcss/postcss"],
+};
+
+export default config;
+
+....................................
+
+src/app
+
+layout.js
+page.js
+global.css
+
+public 
+  Static assets
+************************************************************************************************************************************************************
+										How to run next app?
+
+dev, build and prod
+
+dev mode:
+	>npm run dev
+
+How to prepare your app for production?
+
+First you have to build
+
+   >npm run build
+
+Then you have run in production mode
+    >npm start
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
