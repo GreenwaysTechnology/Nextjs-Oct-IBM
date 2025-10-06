@@ -391,3 +391,189 @@ First you have to build
 Then you have run in production mode
     >npm start
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+					              				Next.js Application Architecture
+.......................................................................................................................................................................................................................................
+			               Next.js app is server side app, so for each web page ,the html page is created.
+		        				  "Next App is conventional over Configuration based"
+
+conventional over configuration is a software design principle that reduces the need for explicit configuration by following sensible defaults.
+
+file names and folder names are standard based.
+
+
+filenames are predefined...like page.js , layout.js
+
+FileNames:
+1.layout.js
+2.page.js
+3.template.js
+4.route.js
+5.error.js
+6.not-found.js
+7.global-error.js
+8.loading.js
+9.default.js
+.......................................................................................................................................................................................................................................
+										 React core features inside next js
+........................................................................................................................................................................................................................................
+1.Component:
+	  In react every thing is component, in next also the component driven arch is followed.
+2.Props
+    In react data is passed to the component via props.
+    Components are created in a configurable way..
+
+Types of Props:
+
+1.Data as prop:
+
+function User(props){
+   return <div>
+		<h1>{props.id}</h1>
+  <div>
+}
+
+   <User id={1} />
+
+2.State as Prop -Dynamic Prop
+
+  function User(){
+    const [id,setId] = useState(1)
+    return <UserDetails id={id} />
+  }
+
+3.function as Prop- Listeners as Prop
+
+  function User(){
+    const [id,setId] = useState(1)
+    return <UserDetails setId={setId} />
+  }
+
+4.Component as Prop
+
+Component as Prop syntax we use heavily in Next.js
+
+Component Rendering:
+
+function Tab(props){
+   return <> {props.children} </>
+}
+
+<Tab/> - Self Closing
+  This component has no children
+
+<Tab>
+    <Grid/> -  Component as Prop
+<Tab>
+..........................................................................................................................................................................................................................................
+										 Every thing is component  in Next.js
+.........................................................................................................................................................................................................................................
+
+Page Component: - page.js
+  It is place holder component which displays ui.
+
+Layout Component: layout.js
+ 	 It is container component which holds Page Component
+
+Parent and child:
+
+Pattern 1:
+
+function Page() {
+    return <h1>Home Page</h1>
+}
+function Layout(){
+	return <Page/>
+}
+
+Pattern 2:
+function Page() {
+    return <h1>Home Page</h1>
+}
+function Layout(props){
+	return <div>{props.children}</div>
+}
+
+function App(){
+ return <Layout>
+	<Page/>
+</Layout>
+}
+
+In Next js we use pattern 2,
+You cant  supply your own entry function, Next, internally suppiles
+
+Every next application begins /starts with root layout - src/app/layout.js
+
+layout - parent
+	  ------------------------------
+          |                             |
+                      Page -child |
+          |                             |
+          |                             |
+          |                             |
+           -----------------------------
+
+<Layout>
+    <Page/>
+</Layout>
+
+How to declare in built components (page,layout etc...) ?
+
+ 1.every component must be "functional component" - No Class Component.
+ 2.every in built component (page,layout...)  must be exported using "export default" only.
+ 3.Every Next application must have "root layout" src/app/layout.js
+ 4.Every Next application may have  "home/landing page" src/app/page.js
+ 5.Component Name can be any thing like HomePage,Home,MyHomePage,MyLayout etc..
+
+page.js | page.jsx | page.tsx 
+layout.js | layout.jsx | layout.tsx
+
+
+How to create Page and layout Components ?
+
+src/page.js
+
+function Home() {
+  //you must return jsx 
+  return <div>
+    <h1>Home Page</h1>
+  </div>
+}
+
+export default Home;
+
+src/app/layout.js
+export default function RootLayout(props) {
+    return <html lang="en">
+        <body>
+            {props.children}
+        </body>
+    </html>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Layouts and Pages-Routing
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+What is Routing?
+	Routing is nothing but mapping resources against url.
+
+Next.js uses "file-system based routing" , meaning you can use folders and files to define routes.
+
+Types of Routing implementation:
+
+1.page routing
+    It is old form of routing pattern, now it is not used
+   page routing was available before next.js version 12
+
+2.app routing
+    It is modern form of routing pattern, now it is heavily used
+    app routing has been available from next.js version 13 onwards
+
+create a page and map against url:
+.........................................................
+
+A page is UI that is rendered on a specific route. in order to create a page, "add page.js or page.jsx or page.tsx page.ts".
+
+Route:
+   means URL  ----> /products , /customers , /comments
