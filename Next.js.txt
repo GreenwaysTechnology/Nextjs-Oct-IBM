@@ -650,3 +650,49 @@ Hands on :
 
 You create a route for course, training ,instructor
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									   Nested Layout
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Nested layout is optional only, if you want nested layout, which is shared among nested pages.
+
+layout.js - File Convention for nested layout also.
+
+<Layout> -- root layout
+	<Layout> --nested layout
+		<Page/>
+	</Layout>
+</Layout>
+
+eg:
+src/app/customer/layout.js
+
+export default function CustomerLayout(props) {
+
+    return <div id="customerlayout">
+        {/* Customer Page is inserted here */}
+        {props.children} 
+    </div>
+
+}
+
+Deep Nested Layouts:
+
+src/app/products/layout.js
+export default function ProductLayout({ children }) {
+    return <div id="productLayout">
+        {children}
+    </div>
+}
+src/app/products/reviews/layout.js
+export default function ReviewsLayout({ children }) {
+    return <div id="reviewsLayout">
+        {children}
+    </div>
+}
+src/app/products/reviews/comments/layout.js
+
+export default function CommentsLayout({ children }) {
+    return <div id="commentsLayout">
+        {children}
+    </div>
+}
