@@ -696,3 +696,121 @@ export default function CommentsLayout({ children }) {
         {children}
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Component Driven Archiecture
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Layout is container Component, Page Component is mapped against route segment, which displays UI.
+
+Can Page Hold other Components?
+
+Yes
+    Layout
+          | 
+       Page
+            |
+ UserProfile
+     |
+    UserList
+      |
+      UserItem
+
+Project:
+√ What is your project named? ... components-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+Without extra Components:
+
+src/app/todos/layout.js
+export default function TodosLayout({children}){
+    return <div id="todosLayout">
+         {children}
+    </div>
+}
+src/app/todos/page.js
+import TODOS from "../mock-data/todos"
+export default function TodosPage() {
+    return <>
+        <h1>Todos Page</h1>
+        <ul>
+            {TODOS.map(todo => {
+                return <li key={todo.id}>
+                    <span>{todo.title} {todo.status ? "Completed" : "In Progress"}</span>
+                </li>
+            })}
+        </ul>
+    </>
+}
+
+Here we have dumpted todos ui inside page.js , which is not recommended, you have to have separate component.
+
+src/app/todos/components/TodoList.jsx
+import TODOS from "../../mock-data/todos"
+
+export function TodoList() {
+    return <ul>
+        {TODOS.map(todo => {
+            return <li key={todo.id}>
+                <span>{todo.title} {todo.status ? "Completed" : "In Progress"}</span>
+            </li>
+        })}
+    </ul>
+}
+src/app/todos/page.js
+import { TodoList } from "./components/todosList";
+
+export default function TodosPage() {
+    return <>
+        <TodoList />
+    </>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										import aliases
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Import aliases in Next.js , in javascript or typescript projects generally provide a way to create shorter,more readable and less error-prone import paths instead of using long relative paths
+
+eg:
+ ../../
+../../../components/Mycomponent
+
+import TODOS from "../../mock-data/todos"
+
+Using Import aliases Syntax:
+
+@/app/yourFolder/YoursubFolder/fileName
+
+import TODOS from "@/app/mock-data/todos"
+
+
+eg:
+
+import TODOS from "@/app/mock-data/todos"
+export function TodoList() {
+    return <ul>
+        {TODOS.map(todo => {
+            return <li key={todo.id}>
+                <span>{todo.title} {todo.status ? "Completed" : "In Progress"}</span>
+            </li>
+        })}
+    </ul>
+}
+
+// import { TodoList } from "./components/todosList";
+import { TodoList } from "@/app/todos/components/todosList"
+export default function TodosPage() {
+    return <>
+        <TodoList />
+    </>
+}
+
+Task:
+Display Post Details using components
+Mock data : https://jsonplaceholder.typicode.com/posts
