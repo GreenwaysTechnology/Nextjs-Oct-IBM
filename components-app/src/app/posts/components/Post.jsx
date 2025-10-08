@@ -22,7 +22,9 @@ export default function Post() {
 
     const updatePost = () => {
         console.log('update post is called')
-
+        setPosts(posts.map(post => post.id === form.id ? form : post))
+        setIsEditing(false)
+        clearForm()
     }
     const addPost = () => {
         const newPost = { id: Date.now(), title: form.title, body: form.body }
@@ -33,6 +35,16 @@ export default function Post() {
 
     const clearForm = () => {
         setForm({ id: null, title: '', body: '' })
+    }
+
+    //edit 
+    const handleEdit = post => {
+        setIsEditing(true)
+        setForm({ title: post.title, body: post.body, id: post.id })
+    }
+    //delete
+    const handleDelete = id => {
+        setPosts(posts.filter(post => post.id !== id))
     }
 
     return <div>
@@ -62,8 +74,12 @@ export default function Post() {
                     return <li key={post.id}>
                         <h1>{post.title}</h1>
                         <p>{post.body}</p>
-                        <button>Edit</button>
-                        <button>Delete</button>
+                        <button onClick={() => {
+                            handleEdit(post)
+                        }}>Edit</button>
+                        <button onClick={() => {
+                            handleDelete(post.id)
+                        }}>Delete</button>
                     </li>
                 })
             }
