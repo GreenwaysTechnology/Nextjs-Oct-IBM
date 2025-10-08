@@ -958,7 +958,6 @@ if component has
 
 Task:
   CURD operation using Array
-
 'use client'
 import { useState } from "react"
 
@@ -983,7 +982,9 @@ export default function Post() {
 
     const updatePost = () => {
         console.log('update post is called')
-
+        setPosts(posts.map(post => post.id === form.id ? form : post))
+        setIsEditing(false)
+        clearForm()
     }
     const addPost = () => {
         const newPost = { id: Date.now(), title: form.title, body: form.body }
@@ -994,6 +995,16 @@ export default function Post() {
 
     const clearForm = () => {
         setForm({ id: null, title: '', body: '' })
+    }
+
+    //edit 
+    const handleEdit = post => {
+        setIsEditing(true)
+        setForm({ title: post.title, body: post.body, id: post.id })
+    }
+    //delete
+    const handleDelete = id => {
+        setPosts(posts.filter(post => post.id !== id))
     }
 
     return <div>
@@ -1023,11 +1034,492 @@ export default function Post() {
                     return <li key={post.id}>
                         <h1>{post.title}</h1>
                         <p>{post.body}</p>
-                        <button>Edit</button>
-                        <button>Delete</button>
+                        <button onClick={() => {
+                            handleEdit(post)
+                        }}>Edit</button>
+                        <button onClick={() => {
+                            handleDelete(post.id)
+                        }}>Delete</button>
                     </li>
                 })
             }
         </ul>
     </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\										Patterns for client and server components
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+1.Server component uses another Server Component
+   inside layout.js we use page.js
+   inside page.js we use UserList.js
+
+2.Server component uses client component
+
+3.Client component uses another server component
+
+4.Client component uses another client component
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								2.Server component uses client component
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Server:
+
+src/app/reviews/page.js
+import { Like } from './components/like'
+
+export default function ReviewPage() {
+    return <div>
+        <h1>Review Page</h1>
+        <Like />
+    </div>
+}
+
+Client:
+src/app/reviews/components/likes.jsx
+
+'use client'
+import { useState } from "react"
+export const Like = props => {
+    const [value, setValue] = useState(0)
+
+    const onLike = () => {
+        setValue(value + 1)
+    }
+    return <>
+        <h1>Like {value}</h1>
+        <button onClick={onLike}>Like</button>
+    </>
+}
+
+Note:
+ if server uses client, the client component must be marked with "use client" directive
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+							Client component uses another server component
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+src/app/clientserverpattern/components/server.jsx
+
+export default function Server(){
+    return <div>
+        <h1>Server Component</h1>
+    </div>
+}
+
+src/app/clientserverpattern/components/client.jsx
+
+'use client'
+
+import Server from "@/app/clientserverpattern/components/server"
+
+export default function Client() {
+    return <div>
+        <h1>Client Component</h1>
+        <Server />
+    </div>
+}
+
+			 if client uses another server component,"server component automatically becomes client component"
+
+						 	When we use this pattern we loose server rendering
+
+In the above code Server component runs in the client only.
+
+
+		What if "client uses server component" but at the same time, i dont want to loose server rendering feature?
+
+Solution:
+     Pass Server Component as Prop to Child  component.
+
+
+src/app/clientserverpattern/components/server.jsx
+
+export default function Server(){
+    return <div>
+        <h1>Server Component</h1>
+    </div>
+}
+
+
+src/app/clientserverpattern/components/client.jsx
+'use client'
+
+// import Server from "@/app/clientserverpattern/components/server"
+
+export default function Client(props) {
+    return <div>
+        <h1>Client Component</h1>
+        {/* <Server /> */}
+        {props.children}
+    </div>
+}
+
+src/app/clientserverpattern/page.jsx
+
+import Client from "@/app/clientserverpattern/components/client";
+import Server from "@/app/clientserverpattern/components/server"
+
+export default function Page() {
+
+    return <>
+        {/* <Client /> */}
+        <Client>
+            {/* Pass server component as prop to Client */}
+            <Server />
+        </Client>
+    </>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Client Compoent uses another client Component
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+src/app/clientusesclientpattern/page.js
+import Counter from '@/app/clientusesclientpattern/components/Counter'
+
+export default function ClientUsesClient(){
+    return <>
+        <Counter/>
+    </>
+}
+src/app/clientusesclientpattern/components/Increment.jsx
+'use client'
+
+import { useState } from "react"
+
+export default function Increment() {
+    const [value, setValue] = useState(0)
+    return <>
+        <h1>Increment</h1>
+        <h2>Value : {value}</h2>
+        <button onClick={() => {
+            setValue(value + 1)
+        }}>+</button>
+    </>
+}
+src/app/clientusesclientpattern/components/Counter.jsx
+
+'use client'
+import Increment from "@/app/clientusesclientpattern/components/Increment"
+
+export default function Counter(){
+
+    return <>
+        <Increment/>
+    </>
+}
+
+
+Note :
+
+		If client component uses another client component, that another client component no need to use 'use client' directive.
+
+					This would be very useful when we use thrid party ui components into next js
+
+How to use react carbon lib
+
+Steps:
+
+1.npm install @carbon/react
+
+src/app/carbon/page.jsx
+import MyButton from "@/app/carbon/components/MyButton";
+
+export default function CarbonPage() {
+    return <>
+        <MyButton />
+    </>
+}
+
+src/app/carbon/components/MyButton.jsx
+'use client'
+import { Button } from "@carbon/react";
+
+export default function MyButton(){
+    return <>
+        <Button>Click</Button>
+    </>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									       Linking and Navigation
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+In order to understand how navigation works in Next.js we need to know the common concepts
+
+1.Server Rendering
+2.Prefeching 
+3.Streaming
+4.Client-side Transitions
+
+1.Server Rendering
+ 
+Layouts and Pages are React Server Components by default, on Initial and subsequent navigations, the "Server Component Payload" (RSC) Payload is generated on the server before being sent to the client.
+
+java---compile----java bytecode---executed - native code
+c#---compile----- clr code---executed native
+c/c++ --compile----object code---executed native
+js---compile---byte code--executed native code 
+
+next.js code--compile---RSC Payload (server component code ,client component code)  ---rendered as html
+RSC payload is compact binary representation of next.js code
+
+Server Component Payload:
+   It is internal json like structure, it is compiled image from jsx/js/tsx file.
+
+ Source code---->Next.js Compiler---->React Server Component Payload (RSC P)------>Sent to the Client(browser)----->Browser downloads the RSC Payload ,Construct DOM tree.
+
+There are two types of Rendering, based on "When" it happens
+
+1.Static Rendering (or Prerendering) happens at build time or during revalidation and the result is cached (ISR)
+
+2.Dynamic Rendering  happens at "request time" in response to a client request.
+
+Draw backs of Server Rendering:
+.....................................................
+	The trade-off server rendering is that the client must wait for the server to response before the new route can be shown.
+							But Next.js has taken step to improve or avoid this drawback
+
+					  	By Introducing  features called "prefetching"  and "Client side transitions"
+
+
+
+Prefetching:
+.....................
+			Prefetching is the process of loading a route in the background before the user navigates to it
+This makes navigation between routes in your application feel instant, because by the time a user clicks on a link, the data render the route is already available in the client side.
+
+How much of the route is prefecthed depends on whether it's static or dyanmic
+
+1.static route : the full route is prefetched.
+2.dynamic route: prefetching is skipped, or the route is partially prefetched if "loading.jsx" is present
+
+Why dynamic route is skipping  prefetching?		
+
+		By Skipping or Partially prefetching dynamic routes, Next tries to avoid unnecessary work on the server for routes the users may never visits.
+		How ever , waiting for a server response before navigation can give the users the impression that the app  is not responding
+
+How to inform the user that app is loading? 
+
+	You have to show that the app is still active -  You can show some progress bar.
+
+Streaming:
+
+		Straming allows the server to send "parts of a dyamic route" to the client as soon as they are ready, rather than waiting for 
+		the entire route to be rendered.This means users see something sooner, even if parts of the page are still loading.
+
+ For dynamic routes, it means they can be partially prefeched , that is shared layouts and loading spinners can be requested ahead of time.
+
+Client Side transitions:
+	
+		Traditinally, navigation to a server-rendered page triggers a full page load. This clears state,resets scroll postion, and blocks 		interactivity.
+
+Next.js avoids this with client-side transitions using the <Link> Component , instead of reloading the entire page, it updates the content dynamically by
+
+	1.Keeping any shared layouts and UI
+	2.Replacing the current page with prefeched loading state or new page if available.
+
+	Client side transitions are what makes a server-rendered apps feel like client rendered pages, along with prefetching and streaming
+	it enables fast transitions, even for dyamic routes.
+
+What can make transitions slow?
+
+1.Dynamic routes without loading.js or React.Suspense
+
+2.Dynamic segements  without generateStaticParams
+
+3.Slow networks
+
+4.Disable prefeching 
+
+5.Hydration not completed
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											Navigation Implementation
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+There are four ways to navigate between routes in Next.js
+
+- Using the <Link> Component (Client Component)
+- Using useRouter hook (Client Component)
+- Using the native browser History API (Client)
+- Using redirect function (Server component)
+
+Navigation can happen  in two places
+
+1.Server side redirection/navigation
+   Redirection is controlled by Server
+
+2.Client Side Redirection/Navigation
+   Redirction is controlled by browser
+
+Server Redirection:
+1.redirect function
+2.permantRedirect function
+3.routeConfig file
+4.API redirections - NextReponse.redirect
+
+Client Side Naviation:
+1.Link component
+2.useRouter Hook
+3.Browser Native History API.
+
+Project:
+√ What is your project named? ... linking-navigation
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+Link Component:
+
+ Link is react component that extends the HTML <a> element to provide client side navigation between routes.
+
+ Link component has lot of properties
+ 1.href
+ 2.replace
+ 3.scroll
+ 4.prefech
+
+Basic Navigation
+
+src/app/layout.js
+import Link from "next/link";
+
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <header>
+          <h1>Header</h1>
+          <nav>
+            <ul>
+              <li>
+                <Link href={{ pathname: "/about" }}>About</Link>
+              </li>
+              <li>
+                <Link href={{ pathname: "/services" }}>Services</Link>
+              </li>
+            </ul>
+          </nav>
+        </header>
+        {/* Body : page */}
+        {children}
+        <footer>
+          <p>This is footer</p>
+        </footer>
+      </body>
+    </html>
+  );
+}
+
+src/app/about/layout.js
+export default function AboutLayout(props) {
+    return <div id="aboutLayout">
+        {props.children}
+    </div>
+}
+src/app/about/page.js
+export default function About(){
+    return <div>
+        <h1>About</h1>
+    </div>
+}
+
+
+src/app/services/layout.js
+export default function ServicesLayout(props) {
+    return <div id="servicesLayout">
+        {props.children}
+    </div>
+}
+
+src/app/services/page.js
+
+export default function Services(){
+    return <div>
+        <h1>Services</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									   Create Nav Bar Component
+*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+src/app/components/NavBar.jsx
+import Link from "next/link"
+
+export default function NavBar() {
+    return <nav>
+        <ul>
+            <li>
+                <Link href={{ pathname: "/about" }}>About</Link>
+            </li>
+            <li>
+                <Link href={{ pathname: "/services" }}>Services</Link>
+            </li>
+        </ul>
+    </nav>
+}
+src/app/layout.js
+import NavBar from "@/app/components/NavBar";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <header>
+          <h1>Header</h1>
+           <NavBar/>
+        </header>
+        {/* Body : page */}
+        {children}
+        <footer>
+          <p>This is footer</p>
+        </footer>
+      </body>
+    </html>
+  );
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											Active Links
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+If you want to highlight which menu we have clicked, we can  show the menu highlighted
+
+How to enable active link feature?
+
+you can use hook "usePathname()" to determine if link is active or not.
+
+For example to add a css class to the active link, you can check the current pathname matches  of the link.
+
+src/app/links.css
+.active {
+    background-color: aqua;
+}
+
+src/app/components/NavBar.jsx
+'use client'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import '../link.css'
+
+export default function NavBar() {
+    const pathname = usePathname()
+    // console.log(pathname)
+    return <nav>
+        <ul>
+            <li>
+                <Link className={`${pathname === '/about' ? 'active' : ''}`} href={{ pathname: '/about' }}>About</Link>
+            </li>
+            <li>
+                <Link className={`${pathname === '/services' ? 'active' : ''}`} href={{ pathname: '/services' }}>Services</Link>
+            </li>
+        </ul>
+    </nav>
 }
