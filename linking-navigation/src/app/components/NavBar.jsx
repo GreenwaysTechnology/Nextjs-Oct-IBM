@@ -18,6 +18,9 @@ export default function NavigationBar() {
             <li>
                 <Link className={`${pathname === '/contact' ? 'active' : ''}`} href={{ pathname: '/contact' }}>Contact</Link>
             </li>
+            <li>
+                <Link className={`${pathname === '/dashboard' ? 'active' : ''}`} href={{ pathname: '/dashboard' }}>Dashboard</Link>
+            </li>
         </ul>
     </nav>
 }
