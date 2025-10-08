@@ -1523,3 +1523,173 @@ export default function NavBar() {
         </ul>
     </nav>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										useRouter Hook
+................................................................................................................................................................................................................................................
+useRouter hook allows you programmetically change route from client components.
+
+src/app/dashboard/components/DashboardNavigator.jsx
+'use client'
+
+import { useRouter } from "next/navigation"
+
+export function DashBoardNavigator() {
+    const router = useRouter()
+    return <div>
+        <button onClick={() => {
+            router.push('/services')
+        }}>Services</button>
+        <button onClick={() => {
+            router.push('/about')
+        }}>About</button>
+    </div>
+}
+
+src/app/components/NavBar.jsx
+'use client'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import '../link.css'
+
+export default function NavBar() {
+    const pathname = usePathname()
+    // console.log(pathname)
+    return <nav>
+        <ul>
+            <li>
+                <Link className={`${pathname === '/about' ? 'active' : ''}`} href={{ pathname: '/about' }}>About</Link>
+            </li>
+            <li>
+                <Link className={`${pathname === '/services' ? 'active' : ''}`} href={{ pathname: '/services' }}>Services</Link>
+            </li>
+
+              <li>
+                <Link className={`${pathname === '/dashboard' ? 'active' : ''}`} href={{ pathname: '/dashboard' }}>DashBoard</Link>
+            </li>
+        </ul>
+    </nav>
+}
+
+src/app/dashboard/page.js
+import { DashBoardNavigator } from "@/app/components/DashboardNavigator";
+
+export default function Dashboard() {
+    return <DashBoardNavigator />
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Advanced Routes - Dynamic Routes -Dynamic Route Segement
+
+What is Dynamic Route?
+	   When you don't know the exact segment names ahead of time and want to create routes from dynamic data, you can use Dynamic Segments that are filled in at request time or prerendered at build time.
+
+URL pattern:
+/users/1
+/posts/comments/1
+	
+How to create dynamic route?
+
+Convention:
+    A dynamic segment can be created by wrapping a folder's name in square brackets.
+  [folderName]
+   eg:
+     [id] or [city] or [slug]
+
+
+ What is your project named? ... dynamic-routes
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Building Master Details Pages
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Ways to build:
+1.Using mock data
+2.Using api call
+
+Using Mock data:
+
+src/app/todos/page.js
+import TODOS from "@/app/mock-data/todos";
+import Link from "next/link";
+
+export function fetchTodos() {
+    return TODOS
+}
+
+export default function TodoPage() {
+    const todos = fetchTodos()
+
+    return <>
+        <ul>
+            {todos.map(todo => {
+                return <li key={todo.id}>
+                    <Link href={{ pathname: `/todos/${todo.id}` }}>
+                        <span>{todo.title}</span>
+                    </Link>
+                </li>
+            })}
+        </ul>
+    </>
+}
+
+src/app/todos/[id]/page.js
+export default function TodosDetailsPage() {
+    return <div>
+        <h1>Details Page</h1>
+    </div>
+}
+
+Here if you want to read the parameter of todoId, Next.js will supply id value as params via props
+
+
+export default function TodosDetailsPage(props) {
+    console.log(props.params)
+    return <div>
+        <h1>Details Page</h1>
+    </div>
+}
+Promise {
+  <pending>,
+  id: '8',
+}
+Here you can see that props.params returns Promise, if you want to read id value, you have to use then or you have to use async...await
+
+export default function TodosDetailsPage(props) {
+    console.log(props.params.id)
+    return <div>
+        <h1>Details Page</h1>
+    </div>
+}
+
+Error: Route "/todos/[id]" used `params.id`. `params` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at TodosDetailsPage (src\app\todos\[id]\page.js:2:29)
+  1 | export default function TodosDetailsPage(props) {
+> 2 |     console.log(props.params.id)
+    |                             ^
+  3 |     return <div>
+  4 |         <h1>Details Page</h1>
+  5 |     </div>
+
+how to read id?
+
+import TODOS from "@/app/mock-data/todos";
+import Link from "next/link";
+
+export function fetchTodoById(id) {
+    return TODOS.find(todo => todo.id === id)
+}
+export default async function TodosDetailsPage(props) {
+    //console.log(props.params.id)
+    const id = (await props.params).id
+    const todo = fetchTodoById(+id)
+    return <div>
+        <h1>{todo.id}</h1>
+        <h2>{todo.title}</h2>
+        <h2>{todo.completed ? "Completed" : "InProgress"}</h2>
+    </div>
+}
