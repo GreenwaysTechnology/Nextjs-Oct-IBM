@@ -2012,3 +2012,233 @@ https://fakestoreapi.com/products
 
 1.Using css with proper layouts.
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+						   					Data Fetching
+...........................................................................................................................................................................................................................................
+
+Where data fetching can happen?
+
+Types of Data fetching:
+
+1.Server side data fetching
+2.Client side data fetching.
+
+Server side data fetching:
+..........................................
+=>Whenever possible , we recommend fetching data on the server,This allows you to
+ Have direct access to back end data resources(eg.databases)
+
+=>Keep your application more secure by preventing sensitive information, such as access tokens and API Keys, from being exposed to the client.
+
+=>Perform multiple data fetches with single round-trip instead of multiple individual requests on the client.
+
+=>Reduce client-server waterfalls.
+
+=>Depending on your region, data fetching can also happen closer to your data source, reducing latency and improving performance.
+....................................................................................................................................................................................................................................
+                                               			   Fetching Data Where It's Needed
+....................................................................................................................................................................................................................................
+
+	If you need to use the same data (e.g. current user) in multiple components in a tree, you do not have to fetch data globally, nor forward props between components.
+	 Instead, you can use fetch or React cache in the component that needs the data without worrying about the performance implications of making multiple requests for the same data.
+
+Parent - Layout  - apicall url eg fetch('/api/customers')
+   |
+   child  - Layout -apicall sameurl -fetch('/api/customers')
+     |
+     child -Layout -apicall sameurl -fetch('/api/customers')
+       |
+      child -Layout -apicall sameurl -fetch('/api/customers')
+        |
+        child- Page -apicall sameurl -fetch('/api/customers')
+
+........................................................................................................................................................................................................................................
+				  			Server side data fetching using "fetch" api
+........................................................................................................................................................................................................................................
+
+Fetching data on the server with fetch:
+...............................................................
+
+	Next.js extends the native "fetch" Web API to allow you to configure the caching and revalidating behavior for each fetch request on the server.
+
+React extends fetch to automatically memoize fetch requests while rendering a React component tree.
+
+There are four places You can use "fetch":
+
+1.Server components
+2.Client Components
+3.Route Handlers,REST API
+4.Server Actions
+
+
+You can use fetch with async/await in "Server Components", in "Route Handlers", and in "Server Actions".
+
+√ What is your project named? ... data-fetching
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+.........................................................................................................................................................................................................................................
+	    						Data Fetching from external API using "fetch" api
+.........................................................................................................................................................................................................................................
+
+Server component:
+
+src/app/todos/page.js
+
+//data fetching in server component using fetch 
+export async function fetchTodos() {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        const response = await fetch(url)
+        return response.json()
+    }
+    catch (err) {
+        return err
+    }
+
+}
+
+export default async function TodosPage() {
+    const todos = await fetchTodos()
+    return <>
+        <h1>Todos Page</h1>
+        <ul>
+            {todos.map(todo => <li key={todo.id}>{todo.title}</li>)}
+        </ul>
+    </>
+}
+...........................................................................................................................................................................................................................................
+							  Server side data fetching using  "third party" api-axios
+.........................................................................................................................................................................................................................................
+	You can use any third party ajax api to call apis from next application but which is not recommended, because other apis will not have features such as caching,revalidation,request memoziation, we have to write extra code.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+			  	 			Data fetching in Client components-Using fetch api
+.......................................................................................................................................................................................................................................
+
+
+Note: 
+    fetching in client component mostly not recommended but still we can..
+
+src/app/posts/components/FetchPost.jsx
+
+'use client'
+
+import { useEffect, useState } from "react"
+
+export default function FetchPost() {
+    const [posts, setPosts] = useState([])
+    useEffect(() => {
+        async function fetchPostDetails() {
+            const url = 'https://jsonplaceholder.typicode.com/posts'
+            const response = await fetch(url)
+            const posts = await response.json()
+            console.log('client')
+            setPosts((myposts) => {
+                return posts.concat(myposts)
+            })
+        }
+
+        fetchPostDetails();
+
+
+    }, [])
+
+    return <>
+        <h1>Posts</h1>
+        <ul>
+            {
+                posts.map(post => {
+                    return <li>
+                        <span>{post.title}</span>
+                    </li>
+                })
+            }
+        </ul>
+    </>
+}
+
+src/app/posts/page.js
+import FetchPost from "./components/FetchPost"
+
+export default function PostPage(){
+    return <>
+      <FetchPost/>
+    </>
+}
+
+	Using "fetch" api  in client component is not recommended, the reason is which has no any caching feature is enabled, so fetch must be used only in server components/server side.
+
+					What if i want to write client side data fetching with performance?
+
+ Dont use 'fetch' api
+
+				We have third party lib which internally wraps fetch only with caching features
+
+...........................................................................................................................................................................................................................................
+		      		 			Data Fetching in Client Components using SWR API
+...........................................................................................................................................................................................................................................
+
+What is SWR?
+
+	 The name “SWR” is derived from "stale-while-revalidate", a HTTP cache invalidation strategy popularized by HTTP RFC 5861. SWR is a strategy to first return the data from cache (stale), then send the fetch request (revalidate), and finally come with the up-to-date data.
+
+SWR is wrapper for fetch api only.
+
+Why SWR
+1.Client side caching by default
+2.Cache revalidation by default
+3.You dont need to write hooks like useEffect,useState,
+4.You get data,error,loading flags
+
+npm i swr
+
+rc/app/components/PostsClientUsingSWR.jsx
+
+'use client'
+import useSWR from "swr"
+
+function fetchposts(...args) {
+    return fetch(...args).then(res => res.json())
+}
+
+export default function FetchPostsUsingSWR() {
+    const url = 'https://jsonplaceholder.typicode.com/posts'
+    const { data, error, isLoading } = useSWR(url, fetchposts)
+
+    if (error) {
+        return <div>
+            <h1>Failed to Return</h1>
+        </div>
+    }
+    if (isLoading) {
+        return <h1 className="text-center mt-30">Loading...</h1>
+    }
+    return <ul className="m-10">
+        {
+            data.map(post => {
+                return <li key={post.id}>
+                    {post.title}
+                </li>
+            })
+        }
+    </ul>
+
+
+}	
+src/app/posts/page.js
+import FetchPost from "@/app/components/FetchPosts";
+import FetchPostsUsingSWR from "@/app/components/PostsClientUsingSWR"
+
+export default function PostPage(){
+    return <div>
+        <h1>Post Page Fetching Data from the Client Side</h1>
+        {/* <FetchPost/> */}
+        <FetchPostsUsingSWR/>
+    </div>
+}
