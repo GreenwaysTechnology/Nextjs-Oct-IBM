@@ -2242,3 +2242,140 @@ export default function PostPage(){
         <FetchPostsUsingSWR/>
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										 Building REST APIs in Next.js  
+...........................................................................................................................................................................................................................................
+
+REST api can be used to write rest api which may talk to databases or external rest api or Graphql api or microservices
+
+Route Handler:
+  Route handlers are used to create api in next
+
+File Name:
+ route.js
+
+
+src/app/todos/
+   page.js
+   layout.js
+   route.js - it is not recommended to write like this
+
+Recommended Folder Structure:
+.....................................................
+src/app/api/todos
+    route.js
+    	[id]/
+    	  route.js
+
+url pattern
+ /api/todos 
+ /api/posts
+ /api/products
+ /api/products/1
+
+Syntax:
+
+export async function HTTPVerb(request){
+
+}
+=>Always route function must have "export" only.
+=>Function must have async keyword
+=>Function args may have request object.
+
+Supported Verbs:
+
+1.GET
+2.POST
+3.PUT
+4.PATCH
+5.DELETE
+6.HEAD
+7.OPTIONS
+
+API Arg:
+ NextRequest Object used to handle incoming client request
+ NextResponse Object used to send response to the client.
+
+Return Type always be json:
+  function name must be marked as "GET/POST"
+
+√ What is your project named? ... rest-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Use case:Simple Rest api
+
+src/app/api/greeter/route.js
+import { NextResponse } from "next/server";
+
+export async function GET(req) {
+    //resonse
+    return NextResponse.json({ message: 'Welcome to Rest api' })
+}
+
+Testing:
+http://localhost:3000/api/greeter.
+
+Patterns:
+
+1.With Mock data
+2.With External REST API
+3.With Database
+
+With Mock data:
+GET,POST,GETById
+
+src/app/api/users/route.js
+import USERS from "@/app/mock-data/users";
+import { NextResponse } from "next/server";
+
+export async function GET(req) {
+    return NextResponse.json(USERS)
+}
+
+export async function POST(req) {
+    const body = await req.json()
+    const newUser = {
+        id: USERS.length + 1,
+        ...body
+    }
+    USERS.push(newUser)
+    return NextResponse.json(newUser, { status: 201 })
+}
+
+src/app/api/users/[id]/route.js
+import USERS from "@/app/mock-data/users";
+import { NextResponse } from "next/server";
+
+export async function GET(req, { params }) {
+    const id = (await params).id
+    const user = USERS.find(tmpUser => tmpUser.id === +id)
+    if (!user) {
+        return NextResponse.json({ error: 'User Not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(user)
+}
+
+export async function PUT(req, { params }) {
+    const id = (await params).id
+    const body = await req.json()
+    const userIndex = USERS.findIndex(tmpUser => tmpUser.id === +id)
+    if (userIndex === -1) {
+        return NextResponse.json({ error: 'User Not found' }, { status: 404 })
+    }
+    USERS[userIndex] = { ...USERS[userIndex], ...body }
+    return NextResponse.json(USERS[userIndex])
+}
+
+export async function DELETE(req, { params }) {
+    const id = (await params).id
+    let index = USERS.findIndex(tmpUser => tmpUser.id === id)
+    USERS.splice(index)
+    return NextResponse.json({ message: 'User has been deleted' })
+}
