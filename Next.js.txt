@@ -1740,4 +1740,275 @@ export default async function PostDetailsPage(props) {
         </section>
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Styling-CSS,Fonts,Images
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+CSS:
+1.Global CSS
+2.CSS Modules
+3.CSS Framworks
+  ->Tailwind framwork
+  ->bootstrap
+  ->SASS
+4.CSS in js
+
+In React How to apply css:
+
+<div className="flex">
+
+const styles= {
+    backgroundColor:'red'
+}
+<div style={styles}>
+<div style={{backgroundColor:'red'}>
+In React How to apply css:
+
+<div className="flex">
+
+const styles= {
+    backgroundColor:'red'
+}
+<div style={styles}>
+<div style={{backgroundColor:'red'}>
+
+√ What is your project named? ... styling-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								  How to use Tailwind framework
+
+
+export default function Home() {
+  return <div className="m-20">
+    <p className="text-xs">This is tailwind</p>
+    <p className="text-sm">This is tailwind</p>
+    <p className="text-base">This is tailwind</p>
+    <p className="text-lg">This is tailwind</p>
+    <p className="text-xl">This is tailwind</p>
+    <p className="text-3xl">This is tailwind</p>
+    <p className="text-3xl font-black">This is tailwind</p>
+    <p className="text-3xl font-black text-blue-900 ">This is tailwind</p>
+    <p className="text-3xl font-black text-blue-900 bg-red-100 ">This is tailwind</p>
+    <p className="text-3xl font-black text-blue-900 bg-red-100 ">This is tailwind</p>
+    <p className="text-3xl font-black text-blue-900 bg-red-100 ml-10 mt-10 mr-10 rounded-full p-10 ">This is tailwind</p>
+
+  </div>
+}
+...........................................................................................................................................................................................................................................
+										CSS Modules
+...........................................................................................................................................................................................................................................
+Why CSS Modules?
+
+Local Scope Prevents Clashes: CSS Modules use local scope to avoid style conflicts across different project parts, allowing component-scoped styling.
+Clear Style Dependencies: Importing styles into their respective components clarifies which styles impact which areas, enhancing code readability and maintenance.
+Solves Global Scope Problems: CSS Modules prevent the common issue of styles in one file affecting the entire project by localizing styles to specific components.
+Boosts Reusability and Modularity: CSS Modules allow the same class names in different modules, promoting modular, reusable styling.
+
+Module Syntax:
+YourName.module.css
+
+src/app/profile/profile.module.css
+
+.profile {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profileImage {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 16px;
+    object-fit: cover;
+}
+
+.name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+
+}
+
+.bio {
+    font-size: 1rem;
+    color: #4a5566;
+    line-height: 1.5;
+
+}
+
+src/app/profile/page.js
+import styles from '@/app/profile/profile.module.css'
+
+export default function ProfilePage() {
+    const profile = {
+        name: 'Subramanian Murugan',
+        bio: 'Next.js Trainer | Micro services Consultant | Open Source Contributor'
+    }
+    return <div className={styles.profile}>
+        <h1 className={styles.name}>{profile.name}</h1>
+        <p className={styles.bio}>{profile.bio}</p>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									css in js using style attribute
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+import styles from '@/app/profile/profile.module.css'
+
+export default function ProfilePage() {
+    const profile = {
+        name: 'Subramanian Murugan',
+        bio: 'Next.js Trainer | Micro services Consultant | Open Source Contributor'
+    }
+    return <div className={styles.profile}>
+        <h1 style={{ backgroundColor: 'yellowgreen' }} className={styles.name}>{profile.name}</h1>
+        <p className={styles.bio}>{profile.bio}</p>
+    </div>
+}
+............................................................................................................................................................................................
+								External Stylesheets
+..........................................................................................................................................................................................
+
+Steps:
+1.install bootstrap
+   npm i -D bootstrap
+2.import in the root layout
+
+src/app/layout.js
+
+import 'bootstrap/dist/css/bootstrap.css'
+
+.........................................................................................................................................................................................................................................
+			      					Image Handling
+...........................................................................................................................................................................................................................................
+
+Next.js comes with automatic image optimization for better performance and user experiences.
+
+How to handle static assets?
+
+You can store all static assets such as images,fonts,docments under public folder in the root directory
+
+if you are going to access any static assets inside code , you can use "/".
+
+Image: 
+ Next.js provides Image component which extends HTML <img> element.
+
+How to use Image component?
+
+ next/image package 
+
+<Image src="" alt="">
+
+src property can point local image or remote image.
+
+How to use local image?
+
+import Image from "next/image"
+export default function ImagePage() {
+
+    return <div>
+        <Image src="/next.svg" alt="This is Next logo" height={100} width={100} />
+        <Image src="/window.svg" alt="This is Next logo" height={100} width={100} />
+
+    </div>
+}
+
+How to handle Remote Images?
+
+import Image from "next/image"
+
+export async function fetchProducts() {
+    const url = 'https://fakestoreapi.com/products'
+    const response = await fetch(url)
+    return response.json()
+}
+
+export default async function ProductsPage() {
+    const products = await fetchProducts()
+    return <div className="m-10 p-5">
+        {
+            products.map(product => {
+                return <section key={product.id}>
+                    <h2>{product.id}</h2>
+                    <h3>{product.title}</h3>
+                    <Image src={product.image} height={200} alt={product.title} width={200} />
+                </section>
+            })
+        }
+    </div>
+}
+After adding, you will get compile time error
+
+Invalid src prop (https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png) on `next/image`, hostname "fakestoreapi.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+
+src\app\products\page.js (17:21) @ <anonymous>
+
+
+  15 |                     <h2>{product.id}</h2>
+  16 |                     <h3>{product.title}</h3>
+> 17 |                     <Image src={product.image} height={200} alt={product.title} width={200} />
+     |                     ^
+  18 |                 </section>
+  19 |             })
+  20 |         }
+
+if you are accessing remote images, you must configure the location in next.config.mjs
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    images: {
+        remotePatterns: [new URL('https://fakestoreapi.com/img/**')],
+    }
+};
+
+export default nextConfig;
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+												Fonts
+...........................................................................................................................................................................................................................................
+
+By default Next js supports google fonts.
+
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+//inter font configuration
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
+}
+Task:
+ You have to build master details page
+
+ Master page must have card layout.
+
+ Detail page must have full information with layouts.
+
+Data Url:
+https://fakestoreapi.com/products
+
+1.Using css with proper layouts.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
