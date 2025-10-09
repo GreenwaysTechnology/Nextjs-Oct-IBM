@@ -5,7 +5,6 @@ export function fetchTodosById(id) {
     return TODOS.find(todo => todo.id === id)
 }
 
-
 export default async function TodosDetailsPage(props) {
     // console.log(props.params.id)
     const id = (await props.params).id
