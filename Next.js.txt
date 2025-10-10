@@ -2509,3 +2509,154 @@ export default async function CommentsPage() {
         }
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Enviroment Variables
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Next.js Comes with built in support for enviroment variables, which allows you to isloate configuration from the code.
+
+Loading environment variables:
+
+process.env.VARIABLEName
+
+File names:
+
+.env
+.env.local
+.env.development
+.env.production
+
+1 .env - default for all enviroments 
+	->base config  for all environment
+2 .env.local - overrides all (recommended for secrets,machine-specific values, ignored by git)
+	- overrides everthing, highest priority 
+3.env.development - only for development 
+        -loaded only in development (next dev)
+        -good for development purpose
+4.env.production
+	-Loading only in production environment - next build && next start
+
+if you define a variable in ".env,.env.development,.env.local" , which will be taken?
+  from the env.local
+
+√ What is your project named? ... environment-variables
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+eg:
+
+create .env file in the project dir
+
+project-Name
+	|
+	.env
+
+
+.env:
+MESSAGE=From ENV environment
+
+Test in dev enviroment
+npm run dev
+
+Test in production environment
+
+npm run build and npm start
+
+You can see the same result.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Rules:
+.env value can be overriden by .env.local and .env.development.
+.env.local overrides all variables defined in all all enviroments that is .env.local takes highest priority among all.
+
+eg:
+.env
+MESSAGE=From ENV environment
+GREET=Welcome env
+
+.env.local
+MYVARLOCAL=This is from Env Local
+GREET=Welcome Local
+
+.env.development
+MYVAR=I AM FROM Development
+GREET=Welcome Development
+
+.env.production
+MYVARPROD=I am from production
+GREET=Welcome Production
+
+src/app/page.js
+export default function Home() {
+
+  return <div className="m-50">
+    <h1>Environment Variables</h1>
+    <h1>.Env File : {process.env.MESSAGE}</h1>
+    <h2>.env.development : {process.env.MYVAR}</h2>
+    <h2>.env.production : {process.env.MYVARPROD}</h2>
+    <h2>.env.local : {process.env.MYVARLOCAL}</h2>
+    <h2>Greet Variable In All ENV : {process.env.GREET}</h2>
+
+  </div>
+}
+
+Task:
+URL configuration for Rest API
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Client Components and env variables
+
+.env.local
+SEED_VALUE=10
+
+src/app/counter/components/Counter.jsx
+'use client'
+
+import { useState } from "react"
+
+export default function Counter() {
+    const [value, setVavlue] = useState(process.env.SEED_VALUE)
+    return <div className="m-20">
+        <h1>Value : {value}</h1>
+        <button onClick={() => {
+            setVavlue(value + 1)
+        }}>+</button>
+    </div>
+}
+
+after running you get error, because process is node variable which is not supported in client side (client component)
+						what if i want to read env variables in side client component?
+
+yes we can read by using the below syntax
+NEXT_PUBLIC_VARIABLE_NAME
+
+eg:
+.env.local
+NEXT_PUBLIC_SEED_VALUE=20
+
+
+src/app/counter/components/Counter.jsx
+'use client'
+
+import { useState } from "react"
+
+export default function Counter() {
+    const [value, setVavlue] = useState(+process.env.NEXT_PUBLIC_SEED_VALUE)
+    return <div className="m-20">
+        <h1>Value : {value}</h1>
+        <button onClick={() => {
+            setVavlue(value + 1)
+        }}>+</button>
+    </div>
+}
+
+
+
+
+
