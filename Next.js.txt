@@ -3835,6 +3835,408 @@ export default function HomePage() {
         </div>
     );
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+					  			Advanced Routing - Dynamic Routes
+			 	  				    "Catch All Segement Routing"
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Dynamic Routing:
+
+/todos/1
+  
+todos 
+ |
+   page.js
+ [id]
+    |
+    page.js
+
+Here we are displaying different todo's page - todo's details page
+
+/shop ----> page.js
+
+/shop/electronics 
+/shop/food
+/shop/machinery
+/shop/medicines
+/shop/?     - cloths
+Here i want to display different category of products not same product details
+
+shop
+ |
+ [electronics] -page.js
+   |
+   page.js
+ |
+ [food] -page.js
+|
+ [machinery]-   page.js
+|
+ [medicines]-   page.js
+|
+[?] -page.js
+
+  					 What if dynamic routes are not predefined in advance...
+                      	   	This where "catchAll dynamic routing segment" comes into picture
+
+
+The "catchAll" segment is used to capture dynamic route segments that can handle any number of path segments in the URL. This is useful for routing in scenarios where the exact number of path segments is uncertain.
+
+Example: Blog Application
+
+Let's assume you are building a blog application, and you want to allow access to various types of blog posts, such as categories, authors, and specific post titles.
+
+Folder Structure:
+
+With Catch All:
+
+shop
+  |
+  page.js
+ [...slug]
+   |
+  page.js
+
+
+√ What is your project named? ... catchall-routing
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+					  			Advanced Routing - Dynamic Routes
+			 	  				    "Catch All Segement Routing"
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Dynamic Routing:
+
+/todos/1
+  
+todos 
+ |
+   page.js
+ [id]
+    |
+    page.js
+
+Here we are displaying different todo's page - todo's details page
+
+/shop ----> page.js
+
+/shop/electronics 
+/shop/food
+/shop/machinery
+/shop/medicines
+/shop/?     - cloths
+Here i want to display different category of products not same product details
+
+shop
+ |
+ [electronics] -page.js
+   |
+   page.js
+ |
+ [food] -page.js
+|
+ [machinery]-   page.js
+|
+ [medicines]-   page.js
+|
+[?] -page.js
+
+  					 What if dynamic routes are not predefined in advance...
+                      	   	This where "catchAll dynamic routing segment" comes into picture
+
+
+The "catchAll" segment is used to capture dynamic route segments that can handle any number of path segments in the URL. This is useful for routing in scenarios where the exact number of path segments is uncertain.
+
+Example: Blog Application
+
+Let's assume you are building a blog application, and you want to allow access to various types of blog posts, such as categories, authors, and specific post titles.
+
+Folder Structure:
+
+With Catch All:
+
+shop
+  |
+  page.js
+ [...slug]
+   |
+  page.js
+
+
+√ What is your project named? ... catchall-routing
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+
+/app/shop/page.js
+export default function Shop(){
+    return <h1>Shop Page</h1>
+}
+
+src/shop/[...slug]/page.js
+
+export default async function ShopCateory({ params }) {
+    const values = await params
+    return <h1>Shop Page -Category {JSON.stringify(values)}</h1>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								Display page based on Data
+***********************************************************************************************************************************************************
+src/app/docs/page.js
+
+export default function DocsHome(){
+    return <h1>
+        Docs Home Page
+    </h1>
+}
+
+src/app/docs/[...slug]/page.js
+import { notFound } from "next/navigation"
+
+const docs = {
+    //path: path Content
+    "getting-started": "Heres How to get started",
+    "advanced": "This is advanced Guide"
+}
+
+export default async function DocsDetailsPage({ params }) {
+    const slug = (await params).slug
+
+    const path = slug.join("/")
+    const content = docs[path]
+    if (!content) {
+        notFound()
+    }
+    return <div className="p-6">
+        <h1>Docs :{path}</h1>
+        <p>{content}</p>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+					     		Advanced Routing - Dynamic Routes
+		   			    		"Optional Catch All Segement Routing"
+...........................................................................................................................................................................................................................................
+With Catch All:
+
+shop
+  |
+  page.js
+ [...slug]
+   |
+  page.js
+
+/shop/tops
+/shop/tops/tshirt
+/shop/dress/mens/shirt
+
+In CatchAll segement routing,the root folder has page.js, without that page.js what will happen?
+  You will get 404 - Page Not found
+
+http://localhost:3000/shop
+
+ There would be use case, i dont want page.js inside /shop 
+
+ Thats where we use "Optional CatchAll" segement is used
+
+With Optional CatchAll Segment:
+
+shop
+  |
+ [[...slug]] --optional CatchAll Segement...
+   |
+   page.js
+
+√ What is your project named? ... optionalcatchall-routing
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+src/shop/[[...slug]]/page.js
+
+export default async function ShopCateory({ params }) {
+    const values = await params
+    return <h1>Shop Page -Category {JSON.stringify(values)}</h1>
+}
+
+src/docs/[[...slug]]/page.js
+import { notFound } from "next/navigation"
+
+const docs = {
+    //path: path Content
+    "docs" : "Welcome to Docs Home Page",
+    "getting-started": "Heres How to get started",
+    "advanced": "This is advanced Guide"
+}
+
+export default async function DocsDetailsPage({ params }) {
+    const slug = (await params).slug
+
+    const path = slug ? slug.join("/") : "docs"
+    const content = docs[path]
+    if (!content) {
+        notFound()
+    }
+    return <div className="p-6">
+        <h1>Docs :{path}</h1>
+        <p>{content}</p>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Deep nested Items
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+src/products/[[...slug]]/page.js
+
+import Link from "next/link";
+
+const catalog = {
+  index: [
+    {
+      name: "Electronics",
+      slug: "electronics",
+      children: [
+        {
+          name: "Mobiles",
+          slug: "mobiles",
+          children: [
+            {
+              name: "iPhone 15",
+              slug: "iphone-15",
+              type: "product",
+              price: "₹79,999",
+            },
+            {
+              name: "Samsung Galaxy S24",
+              slug: "samsung-galaxy-s24",
+              type: "product",
+              price: "₹69,999",
+            },
+          ],
+        },
+        {
+          name: "Laptops",
+          slug: "laptops",
+          children: [
+            {
+              name: "Lenvo",
+              slug: "LenvoThinkPad",
+              type: "product",
+              price: "₹79,999",
+            },
+            {
+              name: "Dell",
+              slug: "dell",
+              type: "product",
+              price: "₹79,999",
+            }
+          ],
+        },
+      ],
+    },
+    {
+      name: "Fashion",
+      slug: "fashion",
+      children: [
+        {
+          name: "Men",
+          slug: "men",
+          children: [
+            { name: "T-Shirts", slug: "t-shirts", type: "product", price: "₹999" },
+            { name: "Shoes", slug: "shoes", type: "product", price: "₹1999" },
+          ],
+        },
+        { name: "Women", slug: "women", children: [] },
+      ],
+    },
+    {
+      name: "Books",
+      slug: "books",
+      children: [],
+    },
+  ],
+};
+
+function findNode(catalog, pathSegments) {
+  let currentLevel = catalog.index;
+
+  for (let segment of pathSegments) {
+    const found = currentLevel.find((node) => node.slug === segment);
+    if (!found) return null;
+    if (found.type === "product") return found; // stop at product
+    currentLevel = found.children || [];
+  }
+
+  return { children: currentLevel }; // return category with sub-items
+}
+
+export default async function ProductsPage({ params }) {
+  const { slug } = await params;
+  const path = slug || [];
+
+  const node = findNode(catalog, path);
+
+  if (!node) {
+    return <h1 className="p-6 text-xl font-bold">Not Found</h1>;
+  }
+
+  // Product page
+  if (node.type === "product") {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-bold">{node.name}</h1>
+        <p className="mt-2 text-gray-600">{node.price}</p>
+      </div>
+    );
+  }
+
+  // Category page
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">
+        {path.length === 0 ? "All Categories" : path.join(" → ")}
+      </h1>
+      <ul className="list-disc pl-6 space-y-2">
+        {node.children.map((item) => (
+          <li key={item.slug}>
+            <Link
+              href={`/products/${[...path, item.slug].join("/")}`}
+              className="text-blue-600 hover:underline"
+            >
+              {item.name}
+            </Link>
+            {/* <div>
+              {JSON.stringify(item)}
+
+            </div> */}
+          </li>
+        ))}
+      </ul>
+      <p>
+        This is product page
+      </p>
+    </div>
+  );
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 
 
