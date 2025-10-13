@@ -3191,7 +3191,650 @@ export default function UsersPage() {
         <User />
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+.				 						Server actions
+..........................................................................................................................................................................................................................................
 
+	Server Actions are a feature in Next.js 15 that allow you to perform server-side operations directly from the client without creating an API route or an explicit handler.
+
+ This feature simplifies data fetching, form submissions, or other server-side logic by integrating it seamlessly into your component tree.
+
+Key Features of Server Actions in Next.js 15:
+
+1.Server-First Logic:
+  Runs on the server, avoiding unnecessary client-side processing.
+  Can securely access server-only resources like databases, environment variables, and APIs.
+  Direct Invocation from Components:
+
+  Trigger server-side logic directly via React components.
+  No need for separate API endpoints.
+
+2.Optimized Performance:
+ Reduces data fetching overhead.
+ Automatically optimizes the server-client data flow.
+
+3.Type Safety:
+  Built-in TypeScript support ensures type safety across your components and server logic.
+
+
+Integrated with App Router:
+
+Perfectly fits into Next.js's App Router system for organizing server and client code.
+
+
+Getting coding:
+
+'use server'
+export async function save(data){
+   //logic
+ }
+npx create-next-app@latest
+√ What is your project named? ... server-actions
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+Use case: How to invoke server actions from the client component.
+
+Counter Increment logic inside client component using client side
+
+src/app/counter/components/counter.jsx
+'use client'
+
+import { useState } from "react"
+
+export default function Counter() {
+    const [value, setValue] = useState(0)
+
+    return <div>
+        <h1>Counter : {value}</h1>
+        <button onClick={() => {
+            console.log('counter client')
+            setValue(value + 1)
+        }}>+</button>
+    </div>
+}
+src/app/counter/page.js
+import Counter from "@/app/counter/components/Counter";
+
+export default function CounterPage(){
+    return <div className="m-20">
+            <Counter/>
+    </div>
+}
+Now you can notice this logic is executed in client.
+
+						Can i write increment logic inside server, when i click the button which is part of client
+
+Yes! - Server Actions
+
+Server actions are simple function function which may take arg or return value...
+
+src/app/actions/counterAction.js
+
+'use server'
+
+let count = 0
+export async function increment() {
+    console.log('Running in server', count)
+    //return count - Promise.resolve(count)
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(count++)
+        }, 5000)
+    })
+}
+
+src/app/counter/components/Counter.jsx
+
+'use client'
+
+import { increment } from "@/app/actions/counterAction"
+import { useState, useTransition } from "react"
+
+export default function Counter({ initalCount = 0 }) {
+    const [isPending, startTransition] = useTransition()
+    const [count, setCount] = useState(initalCount)
+    const handleIncrement = () => {
+        startTransition(async () => {
+            const newCount = await increment()
+            setCount(newCount)
+        })
+    }
+    return <>
+        <h1>{isPending ? 'Updating...' : `count:${count}`}</h1>
+        <button onClick={handleIncrement} disabled={isPending}>
+            +
+        </button>
+
+    </>
+}
+src/app/counter/page.js
+import Counter from "@/app/counter/components/Counter";
+
+export default function CounterPage(){
+    return <div className="m-20">
+            <Counter/>
+    </div>
+}
+
+										Forms and Server actions
+
+'use server'
+
+src/app/actions/userAction.js
+
+export async function createUser() {
+
+    return {
+        success: true, message: 'Data Saved Successfully'
+    }
+}
+
+src/app/forms/userForm.jsx
+
+'use client'
+
+import { createUser } from "@/app/actions/userAction"
+
+export default function UserForm() {
+    async function handleSubmit(evt) {
+        evt.preventDefault()
+        //invoke server actions
+        try {
+            const result = await createUser()
+            alert(JSON.stringify(result))
+        }
+        catch (err) {
+
+        }
+    }
+    return <form onSubmit={handleSubmit}>
+        <div>
+            <input type="text" name="name" placeholder="Name" required />
+        </div>
+        <div>
+            <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div>
+            <button type="submit">Create User</button>
+        </div>
+    </form>
+}
+
+How to invoke server actions from the server component?
+
+src/app/user/page.js
+import { createUser } from "@/app/actions/userAction"
+
+export default async function UserPage(){
+    const response = await createUser()
+    return <div>
+            {JSON.stringify(response)}
+    </div>
+}
+Output:
+{"success":true,"message":"Data Saved Successfully"}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Passing data from client Component to Server actions
+												Client Form to Server Actions
+***********************************************************************************************************************************************************
+
+src/app/actions/userAction.js
+'use server'
+
+export async function createUser(data) {
+    console.log(data)
+    return {
+        success: true, message: 'Data Saved Successfully'
+    }
+}
+
+src/app/user/userForm.jsx
+'use client'
+
+import { createUser } from "@/app/actions/userAction"
+
+export default function UserForm() {
+    async function handleSubmit(evt) {
+        evt.preventDefault()
+        //invoke server actions
+        try {
+            //read form values
+            const user = {
+                name: evt.target.name.value,
+                email: evt.target.email.value
+            }
+            const result = await createUser(user)
+            alert(JSON.stringify(result))
+        }
+        catch (err) {
+
+        }
+    }
+
+    return <form onSubmit={handleSubmit}>
+        <div>
+            <input type="text" name="name" placeholder="Name" required />
+        </div>
+        <div>
+            <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div>
+            <button type="submit">Create User</button>
+        </div>
+    </form>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									 	Server Side Redirection
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+ 	  To redirect after a form submission in Next.js 15 with Server Actions, you can use the "redirect" function from the Next.js router or perform a client-side redirect after the form submission is complete.
+
+Here’s how you can handle both server-side and client-side redirects.
+
+1. Redirect After Form Submission (Server-Side)
+If you want to redirect the user immediately after the form submission directly on the server, you can use the redirect() method in Server Actions.
+
+In Next.js 15, the redirect() function can be used directly inside the server action to navigate the user after the form is processed.
+
+src/app/success/page.js
+export default function SuccessPage() {
+    return <h1>SuccessPage</h1>
+}
+
+src/app/actions/userAction.js
+'use server'
+
+import { redirect } from "next/navigation"
+
+export async function createUser(data) {
+    // Todo: perform server side logic then forward to success page
+    console.log(data)
+    redirect('/success')
+}
+
+src/app/user/component/userForm.jsx
+'use client'
+
+import { createUser } from "@/app/actions/userAction"
+
+export default function UserForm() {
+    async function handleSubmit(evt) {
+        evt.preventDefault()
+        //invoke server actions
+        try {
+            //read form values
+            const user = {
+                name: evt.target.name.value,
+                email: evt.target.email.value
+            }
+            await createUser(user)
+            
+        }
+        catch (err) {
+
+        }
+    }
+
+    return <form onSubmit={handleSubmit}>
+        <div>
+            <input type="text" name="name" placeholder="Name" required />
+        </div>
+        <div>
+            <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div>
+            <button type="submit">Create User</button>
+        </div>
+    </form>
+}
+
+Note: 
+ after running,you can submit data to server action, and server action forwards to success page.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Passing data from Server Component to Server Actions
+												Server Form to Server Actions
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Can you run forms in server or Can you submit data via server Component?
+
+Yes.
+
+Note: Convert Client Component into server Component - Client form to server Form
+
+Rules:
+1. No form listener is added
+
+<form  action="serveraction"></form>
+		|
+		Where to submit this form.
+			|
+			Server Program
+
+<form onSubmit={handleSubmit}/> - client side form submission
+
+Server side form submission:
+
+java syntax:
+    <form method="post" action="users.do"> </form>	
+    <form method="post" action="users.jsp"></form>
+
+Php Syntax
+<form method="post" action="users.php"></form>
+
+Dot.net:
+<form method="post" action="users.aspx"></form>
+
+Next.js
+<form  action={serveraction}></form>
+
+src/app/user/components/userForm.jsx
+
+import { createUser } from "@/app/actions/userAction"
+
+//server component
+export default function UserForm() {
+
+    return <form action={createUser} method="POST">
+        <div>
+            <input type="text" name="name" placeholder="Name" required />
+        </div>
+        <div>
+            <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div>
+            <button type="submit">Create User</button>
+        </div>
+    </form>
+}
+
+src/app/actions/userAction.js
+'use server'
+
+import { redirect } from "next/navigation"
+
+export async function createUser(data) {
+    // Todo: perform server side logic then forward to success page
+    console.log(data)
+    console.log(data.get('name') , data.get('email'))
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Redirections and Passing data to Redirected Page
+	  								       Transfering data from Server action to Success Page
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+There are many ways
+1.Via Url -  Query Strings
+2.Via Session Object (cookies)
+
+
+QueryString syntax:
+  redirect(`/success?name=${encodeURIComponent(data.get("name"))}&email=${encodeURIComponent(data.get("email"))}`);
+
+eg:
+
+src/app/actions/userAction.js
+'use server'
+
+import { redirect } from "next/navigation"
+
+export async function createUser(formData) {
+     redirect(`/success?name=${encodeURIComponent(formData.get("name"))}&email=${encodeURIComponent(formData.get("email"))}`);
+}
+
+src/app/user/components/userForm.jsx
+
+import { createUser } from "@/app/actions/userAction"
+
+//server component
+export default function UserForm() {
+
+    return <form action={createUser} method="POST">
+        <div>
+            <input type="text" name="name" placeholder="Name" required />
+        </div>
+        <div>
+            <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div>
+            <button type="submit">Create User</button>
+        </div>
+    </form>
+}
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								How to read Query String in success Page
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Using 'useSearchParams' hook we can read query strings transfered from server actions.
+Since we use hook , must be converted into client component.
+
+src/app/success/page.js
+'use client'
+import { useSearchParams } from 'next/navigation';
+
+export default function SuccessPage() {
+    const searchParams = useSearchParams()
+    const name = searchParams.get('name');
+    const email = searchParams.get('email');
+
+    return <div>
+        <h1>User Form Submitted Successfully!!</h1>
+        <h1>Name : {name}</h1>
+        <h2>Email : {email}</h2>
+    </div>
+}
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											Server actions with Database
+
+√ What is your project named? ... serveractions-dbapp
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+Initalize the prisma with sqlite : Follow the previous steps
+
+schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+}
+
+
+src/app/actions/userAction.js
+
+"use server";
+
+import { prisma } from "@/app/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+export async function getUsers() {
+    return await prisma.user.findMany({ orderBy: { id: "desc" } });
+}
+
+export async function addUser(name, email) {
+    await prisma.user.create({ data: { name, email } });
+    revalidatePath("/");
+}
+
+export async function updateUser(id, name, email) {
+    await prisma.user.update({
+        where: { id: Number(id) },
+        data: { name, email },
+    });
+    revalidatePath("/");
+}
+
+export async function deleteUser(id) {
+    await prisma.user.delete({ where: { id: Number(id) } });
+    revalidatePath("/");
+}
+
+src/app/user/page.js
+"use client"; // we'll need interactivity
+
+import { getUsers, addUser, updateUser, deleteUser } from "@/app/actions/userActions";
+
+import { useState,useEffect } from "react";
+
+export default function HomePage() {
+    const [users, setUsers] = useState([]);
+    const [editUser, setEditUser] = useState(null);
+    const [form, setForm] = useState({ name: "", email: "" });
+
+    useEffect(() => {
+        async function fetchUsers() {
+            const data = await getUsers();
+            setUsers(data);
+        }
+        fetchUsers();
+    }, []);
+    // Add User
+    async function handleAdd(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const name = formData.get("name");
+        const email = formData.get("email");
+
+        await addUser(name, email);
+        setUsers(await getUsers()); // refresh
+        e.target.reset();
+    }
+
+    // Start Editing
+    function handleEdit(user) {
+        setEditUser(user.id);
+        setForm({ name: user.name, email: user.email });
+    }
+
+    // Save Update
+    async function handleUpdate(e) {
+        e.preventDefault();
+        await updateUser(editUser, form.name, form.email);
+        setUsers(await getUsers()); // refresh
+        setEditUser(null); // exit edit mode
+        setForm({ name: "", email: "" });
+    }
+
+    // Delete User
+    async function handleDelete(id) {
+        await deleteUser(id);
+        setUsers(await getUsers());
+    }
+
+    return (
+        <div className="p-6">
+            <h1 className="text-2xl font-bold">User Management</h1>
+
+            {/* Add User */}
+            {!editUser && (
+                <form onSubmit={handleAdd} className="my-4 flex gap-2">
+                    <input
+                        name="name"
+                        placeholder="Name"
+                        className="border px-2"
+                        required
+                    />
+                    <input
+                        name="email"
+                        placeholder="Email"
+                        className="border px-2"
+                        required
+                    />
+                    <button type="submit" className="bg-blue-500 text-white px-4">
+                        Add
+                    </button>
+                </form>
+            )}
+
+            {/* Edit Form */}
+            {editUser && (
+                <form onSubmit={handleUpdate} className="my-4 flex gap-2">
+                    <input
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder="Name"
+                        className="border px-2"
+                        required
+                    />
+                    <input
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="Email"
+                        className="border px-2"
+                        required
+                    />
+                    <button type="submit" className="bg-yellow-500 text-white px-4">
+                        Update
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setEditUser(null);
+                            setForm({ name: "", email: "" });
+                        }}
+                        className="bg-gray-400 text-white px-4"
+                    >
+                        Cancel
+                    </button>
+                </form>
+            )}
+
+            {/* User List */}
+            <ul className="space-y-4">
+                {users.map((user) => (
+                    <li
+                        key={user.id}
+                        className="border p-2 flex justify-between items-center"
+                    >
+                        <div>
+                            <p>
+                                <b>{user.name}</b> ({user.email})
+                            </p>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleEdit(user)}
+                                className="bg-yellow-500 text-white px-2"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                onClick={() => handleDelete(user.id)}
+                                className="bg-red-500 text-white px-2"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
 
 
 
