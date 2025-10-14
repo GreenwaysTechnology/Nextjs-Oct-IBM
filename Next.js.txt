@@ -4719,5 +4719,370 @@ export default function RootLayout({ children, modal }) {
     </html>
   );
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										SSG -Static Site Generation
+...........................................................................................................................................................................................................................................
+
+if pages uses Static Generation, the page html is generated at  "Build time"
+
+When you run "next build" , during that time, pages are generated.
+
+Generated HTML pages will then be reused on each request. It can be cached by CDN.
+
+In Next.js , you can statically generate pages "with data or without data"
+
+√ What is your project named? ... ssg-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Use case: Static Site Generation without data:
+
+Use case: Static Site Generation without data:
+
+By default, Next.js pre render pages using "SSG" without fetching data.
+
+src/app/about/page.js
+export default function About(){
+    return <h1>
+        About
+    </h1>
+}
+
+Note that this page does not require to fetch any external data to be pre-rendered.
+In this case, next generate a single html file as per page during build time.
+
+>npm run build
+
+> ssg-app@0.1.0 build
+> next build
+
+   ▲ Next.js 15.3.3
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.0s
+ ✓ Linting and checking validity of types
+ ✓ Collecting page data
+ ✓ Generating static pages (6/6)
+ ✓ Collecting build traces
+ ✓ Finalizing page optimization
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    5.63 kB         107 kB
+├ ○ /_not-found                            977 B         102 kB
+└ ○ /about                                 136 B         101 kB
++ First Load JS shared by all             101 kB
+  ├ chunks/4bd1b696-67ee12fb04071d3b.js  53.2 kB
+  ├ chunks/684-c85650275c47a38c.js       45.9 kB
+  └ other shared chunks (total)          1.96 kB
+
+
+○  (Static)  prerendered as static content
+
+>npm start
+
+Use case: Static Generation with Data:
+.............................................................
+Steps:
+
+1.Create master page
+
+src/app/todos/page.js
+
+SSG APP with data:
+
+=>you have to override the function called "generateStaticParams"
+=>This function is called only during build time.
+
+SSG with dynamic Route:
+
+Steps:
+
+1.create master page
+src/app/todos/page.js
+import Link from "next/link"
+
+export async function fetchTodos() {
+    const url = `https://jsonplaceholder.typicode.com/todos`
+    const response = await fetch(url)
+    return response.json()
+}
+
+
+export default async function TodosMasterPage() {
+    const todos = await fetchTodos()
+    return <div>
+        <h1>Total Todos {todos.length}</h1>
+        <ul>
+            {
+                todos.map(todo=>{
+                    return <li>
+                        <Link href={`/todos/${todo.id}`}>{todo.title}</Link>
+                    </li>
+                })
+            }
+        </ul>
+    </div>
+}
+
+2.create Details Page
+
+
+export async function fetchTodos() {
+    const url = `https://jsonplaceholder.typicode.com/todos`
+    const response = await fetch(url)
+    return response.json()
+}
+export async function fetchTodosByid(id) {
+    const url = `https://jsonplaceholder.typicode.com/todos/${id}`
+    const response = await fetch(url)
+    return response.json()
+}
+
+export default async function TodoDetailPage(props) {
+    const todo = await fetchTodosByid(Number(props.params.id))
+    return <div>
+        <h2>id {todo.id}</h2>
+        <p>title {todo.title}</p>
+        <p>Status {todo.completed ? 'Ok' : 'Not Completed'}</p>
+    </div>
+}
+
+//override funciton which is called during build time in order to prepare the page
+
+export async function generateStaticParams() {
+    const todos = await fetchTodos()
+    //generate html pages for all todos(200 todos), if you have 200 records, 200 html files
+    //to be generated
+
+    return todos.map(todo => {
+        //based on id only the pages are generated, id value must be string always.
+        let id = todo.id.toString()
+        return {
+            //id: id
+            id
+        }
+    });
+}
+npm run build
+
+> ssg-app@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.3
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+ ✓ Linting and checking validity of types
+ ✓ Collecting page data
+ ✓ Generating static pages (207/207)
+ ✓ Collecting build traces
+ ✓ Finalizing page optimization
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    144 B          87.1 kB
+├ ○ /_not-found                          871 B          87.8 kB
+├ ○ /about                               144 B          87.1 kB
+├ ○ /todos                               6.96 kB        93.9 kB
+└ ● /todos/[id]                          144 B          87.1 kB
+    ├ /todos/1
+    ├ /todos/2
+    ├ /todos/3
+    └ [+197 more paths]
++ First Load JS shared by all            87 kB
+  ├ chunks/23-0627c91053ca9399.js        31.5 kB
+  ├ chunks/fd9d1056-2821b0f0cabcd8bd.js  53.6 kB
+  └ other shared chunks (total)          1.86 kB
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses getStaticProps)
+
+
+You can look at project workspace, there is ".next" folder would have been created.
+
+This folder having all production files
+
+.next/server/app/todos
+
+ 1.html
+ 2.html
+ 3.html
+ 200.html
+
+How to test?
+ npm start
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Nested Path
+
+For eg:
+   /[category]/[id]
+
+export async function generateStaticParams() {
+  // Imagine this comes from API
+  const products = [
+    { id: 1, category: "electronics", brand: "apple" },
+    { id: 2, category: "electronics", brand: "samsung" },
+    { id: 3, category: "fashion", brand: "nike" },
+    { id: 4, category: "fashion", brand: "adidas" },
+  ];
+
+  return products.map((p) => ({
+    category: p.category,
+    brand: p.brand,
+    id: p.id.toString(),
+  }));
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+												SEO Features
+...........................................................................................................................................................................................................................................
+
+Next js provides an object and also  function to supply SEO meta information to the page.
+
+SEO data can be given statically or dynamically.
+
+static meta data is given via code, one time
+
+dynamic meta is given via code during runtime.
+
+√ What is your project named? ... seo-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in G:\IBM\2025\Aug\Nextjs-b1\seo-app.
+
+SEO meta data is supplied inside layout or page or any component.
+Meta data is supplied via object using "meta data variable"
+meta data must be exported using "export "
+
+syntax
+export const metadata = {
+
+}
+
+
+src/app/layout.js
+
+
+export const metadata = {
+  title: "IBM",
+  description: "IBM is the first Hardware and software company in the world",
+  //add any meta data options
+};
+
+This above code is declarating meta data object having meta data information, this can be part of layout or page .
+
+if it is part of layout, it can be shared across many pages
+if it is part of page, it is only used by that page.
+
+Page specific meta data:
+
+src/app/about/page.js
+export const metadata = {
+    title: "About",
+    //add any meta data options
+};
+
+export default function About() {
+    return <h1>About</h1>
+}
+
+..........................................................................................................................................................................................................................................
+									Master details and meta data	
+...................................................................................................................................................................................................................................
+
+Master Page
+
+app/todos/page.js
+import Link from "next/link"
+
+export async function fetchTodos() {
+    const url = `https://jsonplaceholder.typicode.com/todos`
+    const response = await fetch(url)
+    return response.json()
+}
+
+export const metadata = {
+    title: "Todos Master",
+    //add any meta data options
+};
+
+
+export default async function TodosMasterPage() {
+    const todos = await fetchTodos()
+    return <div>
+        <h1>Total Todos {todos.length}</h1>
+        <ul>
+            {
+                todos.map(todo=>{
+                    return <li key={todo.id}>
+                        <Link href={`/todos/${todo.id}`}>{todo.title}</Link>
+                    </li>
+                })
+            }
+        </ul>
+    </div>
+}
+
+
+Dynamic meta data:
+
+app/todos/[id]/page.js
+
+export async function fetchTodos() {
+    const url = `https://jsonplaceholder.typicode.com/todos`
+    const response = await fetch(url)
+    return response.json()
+}
+export async function fetchTodosByid(id) {
+    const url = `https://jsonplaceholder.typicode.com/todos/${id}`
+    const response = await fetch(url)
+    return response.json()
+}
+
+export default async function TodoDetailPage(props) {
+    const todo = await fetchTodosByid(Number(props.params.id))
+    return <div>
+        <h2>id {todo.id}</h2>
+        <p>title {todo.title}</p>
+        <p>Status {todo.completed ? 'Ok' : 'Not Completed'}</p>
+    </div>
+}
+
+//dynamic meta data function
+export async function generateMetadata({ params, searchParam }, parent) {
+    const id = (await params).id
+    const todo = await fetchTodosByid(Number(id))
+
+    //return meta object
+    return {
+        title: `${todo.title} details`
+    }
+
+}
+
+//override funciton which is called during build time in order to prepare the page
+export async function generateStaticParams() {
+    const todos = await fetchTodos()
+    //generate html pages for all todos(200 todos), if you have 200 records, 200 html files
+    //to be generated
+
+    return todos.map(todo => {
+        //based on id only the pages are generated, id value must be string always.
+        let id = todo.id.toString()
+        return {
+            //id: id
+            id
+        }
+    });
+}
 
 
