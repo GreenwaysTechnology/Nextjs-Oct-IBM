@@ -4349,6 +4349,375 @@ export default function GamePage(){
         <h1>Game Page</h1>
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+..........................................................................................................................................................................................................................................
+								Advanced Routing - Route Groups
+...........................................................................................................................................................................................................................................
 
+What is Route Group?
+ In the app dir, nested folders are mapped to URL Paths, How ever you mark a folder as a route group to prevent     the folder being included in the Route's URL path
+
+
+src/app/dashboard/page.js ------> /dashboard
+
+You can mark a folder as a Route group to prevent the folder being included in the route url path
+Which is some times are called hidden dirs.
+
+Use case:
+	 incase you are organizing your project into multiple folders those folders dont want to include in the url
+
+npx create-next-app@latest
+√ What is your project named? ... route-group
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+folder convention
+	(folderName) (auth)
+		|	
+		login
+
+
+/app/(auth)/login/page.js
+export default function loginPage(){
+    return <h1>Login Page</h1>
+}
+/app/(auth)/register/page.js
+export default function RegistrationPage() {
+    return <h1>Registeration</h1>
+}
+
+/app/(marketing)/about/page.js
+export default function AboutPage() {
+    return <h1>About</h1>
+}
+
+										Layouts and Route Groups
+
+
+
+/src/app/(auth)/layout.js
+export default function AuthLayout({children}){
+    return <div id="AuthLayout">
+            {children}
+    </div>
+}
+This layout shared by login and registration pages
+
+You can have spefic layout as login.
+
+src/app/(auth)/login/layout.js
+export default function LoginLayout({children}){
+    return <div id="LoginLayout">
+            {children}
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Route Interceptor
+									  (Kind of Parrel Routing)
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Parallel Routing is nothing showing multiple pages with in single layout , simultaneously or conditionally.
+Showing two pages on the same layout , top of one another - like instagram/Twitter image preview opening without leaving current feed)-Modal dialogs
+
+npx create-next-app@latest
+√ What is your project named? ... route-interceptor
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+
+(..) - Router Interceptor
+@FolderName - ParrelRoute
+default.js  - Fallback UI when no modal is open
+
+default.js
+   export default function DefaultModal(){
+		return null // empty slot
+    }			
+When no modal is open, render nothing.
+Steps:
+
+1.create mock-data
+
+src/app/mock-data/photo.js
+
+export default [
+    {
+        id: '1',
+        name: 'Kevin Canlas',
+        href: 'https://twitter.com/kvncnls/status/1471832344986324998',
+        username: '@kvncnls',
+        imageSrc: 'https://pbs.twimg.com/media/FGz_t1wXIAIFyT-?format=jpg',
+    },
+    {
+        id: '2',
+        name: 'Pedro Duarte',
+        href: 'https://twitter.com/peduarte/status/1463897468383412231',
+        username: '@peduarte',
+        imageSrc: 'https://pbs.twimg.com/media/FFDOtLkWYAsWjTM?format=jpg',
+    },
+    {
+        id: '3',
+        name: 'Ahmad Awais',
+        href: 'https://twitter.com/MrAhmadAwais/status/1338151679083032577',
+        username: '@MrAhmadAwais',
+        imageSrc: 'https://pbs.twimg.com/media/EpIR281XIAMUrEM?format=jpg',
+    },
+    {
+        id: '4',
+        name: 'Leandro Soengas',
+        href: 'https://twitter.com/lsoengas/status/1352302741339693061',
+        username: '@lsoengas',
+        imageSrc: 'https://pbs.twimg.com/media/EsRYK8oWMAEkObV?format=jpg',
+    },
+    {
+        id: '5',
+        name: 'Samina',
+        href: 'https://twitter.com/saminacodes/status/1466479548837482497',
+        username: '@saminacodes',
+        imageSrc: 'https://pbs.twimg.com/media/FFn7X76VgAEVTgs?format=jpg',
+    },
+    {
+        id: '6',
+        name: 'lafond.eth',
+        href: 'https://twitter.com/laf0nd/status/1464640065615929346',
+        username: '@laf0nd',
+        imageSrc: 'https://pbs.twimg.com/media/E374pyaWEAMCT2R?format=jpg',
+    },
+    {
+        id: '7',
+        name: '山岸和利💛',
+        href: 'https://twitter.com/ykzts/status/1426358452356407297',
+        username: '@ykzts',
+        imageSrc: 'https://pbs.twimg.com/media/E8txb2yVkAQxRVw?format=jpg',
+    },
+    {
+        id: '8',
+        name: 'Altngelo',
+        href: 'https://twitter.com/AfterDarkAngelo/status/1456372859090075648',
+        username: '@AfterDarkAngelo',
+        imageSrc: 'https://pbs.twimg.com/media/E374pyaWEAMCT2R?format=jpg',
+    },
+    {
+        id: '9',
+        name: 'Matias Baldanza',
+        href: 'https://twitter.com/matiasbaldanza/status/1404834163203715073',
+        username: '@matiasbaldanza',
+        imageSrc: 'https://pbs.twimg.com/media/E374pyaWEAMCT2R?format=jpg',
+    },
+];
+
+2.next configuration - next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    images: {
+        domains:['pbs.twimg.com']
+    }
+};
+export default nextConfig;
+
+3.Create Master page
+
+src/app/page.js
+
+import Link from "next/link";
+import photos from "./mock-data/photos";
+import Image from "next/image";
+
+export default function Home() {
+  return <div className="container mx-auto">
+    <h1 className="text-center text-4xl font-bold m-10">PhotoGallary App</h1>
+    {/* render photos */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 auto-rows-max gap-6 m-10">
+      {photos.map(photo => {
+        return <Link key={photo.id} href={`/photos/${photo.id}`}>
+          <Image alt="Your Image"
+            src={photo.imageSrc}
+            height={500}
+            width={500}
+            className="w-full object-cover aspect-square"
+          />
+        </Link>
+      })}
+    </div>
+  </div>
+}
+
+4.Create Detail Page
+
+src/app/photos/[id]/page.js
+import photos from "@/app/mock-data/photos"
+import Image from "next/image"
+
+export default async function PhotoDetailsPage({ params }) {
+    const id = (await params).id
+    const photo = photos.find(photo => photo.id === id)
+    return <div className="container mx-auto my-10">
+        <Image alt="Your Image"
+            src={photo.imageSrc}
+            height={100}
+            width={100}
+            className="w-full object-cover aspect-square"
+        />
+    </div>
+}
+
+5.in order to display image separatly, we can create a separte Frame Component
+
+src/app/components/frame.jsx
+import Image from "next/image"
+
+export default function Frame({ photo }) {
+    return <div>
+        <Image alt="Your Image"
+            src={photo.imageSrc}
+            height={100}
+            width={100}
+            className="w-full object-cover aspect-square"
+        />
+        <div>
+            <h1 className="text-bold">{photo.name}</h1>
+            <h2>Taken by{photo.username}</h2>
+        </div>
+    </div>
+}
+
+6.Replace with FrameComponent
+
+src/app/photos/[id]/page.js
+
+import Frame from "@/app/components/frame"
+import photos from "@/app/mock-data/photos"
+
+export default async function PhotoDetailsPage({ params }) {
+    const id = (await params).id
+    const photo = photos.find(photo => photo.id === id)
+    return <div className="container mx-auto my-10">
+        <Frame photo={photo} />
+    </div>
+}
+
+7.Modal dialog
+
+src/app/components/model.jsx
+
+'use client'
+
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useRef } from "react"
+
+export default function Modal({ children }) {
+    const overlay = useRef(null)
+    const wrapper = useRef(null)
+    const router = useRouter()
+
+    const onDismiss = useCallback(() => {
+        router.back()
+    }, [router])
+
+    //close the modal dialog
+    const onClick = useCallback((e) => {
+        if (e.target === overlay.current || wrapper.current) {
+            //if you have clicked on photo
+            if (onDismiss) onDismiss()
+        }
+    })
+    //close the dialog : when you press escape key
+    const onKeyDown = useCallback(e => {
+        if (e.key === 'Escape') {
+            onDismiss()
+        }
+    }, [onDismiss])
+
+    //componentDidUpdate
+    useEffect(() => {
+        document.addEventListener('keydown', onKeyDown)
+        //componentWillUnMount
+        return () => document.removeEventListener('keydown', onKeyDown)
+    }, [onkeydown])
+
+    return <div ref={overlay} onClick={onClick}>
+        {/* Within Modal we render Framework */}
+        {/* This div will display Frame(Photo) */}
+        <div ref={wrapper} style={{ backgroundColor: 'yellow' }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-10/12 md:w-8/12 lg:w-1/2 p-6">
+            {children}
+        </div>
+    </div>
+}
+
+Interceptor : Parral route
+src/app/@modal/(.)photos/[id]/page.js
+
+import photos from "@/app/mock-data/photo"
+import Frame from "@/app/components/Frame"
+import Modal from "@/app/components/Modal"
+
+export default async function PhotoModal({ params }) {
+    const id = (await params).id 
+    const photo = photos.find((p) => p.id == id)
+    return (
+        <Modal>
+            <Frame photo={photo} />
+        </Modal>
+    )
+}
+
+default.js - fallback page
+src/app/@modal/default.js
+export default function Default(){
+    return null
+}
+
+default.js
+src/app/default.js
+src/app/@modal/default.js
+export default function Default(){
+    return null
+}
+
+src/app/layout.js
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({ children, modal }) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {/* Master Page */}
+        {children}
+        {/* Modal */}
+        {modal}
+      </body>
+    </html>
+  );
+}
 
 
