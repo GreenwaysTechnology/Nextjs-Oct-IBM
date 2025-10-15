@@ -5084,5 +5084,196 @@ export async function generateStaticParams() {
         }
     });
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+		         						 How to improve loading performance
+.....................................................................................................................................................................................................................................
+
+SSR with React and Next.js helps improve the perceived loading performance by showing a non interactive page to the user as soon as possible.
+
+Only HTML can be sent once the data fetching is over.
+
+Streaming allows you to break down the page's HTML into smaller chunks and progressively send those chunks from the server to the client.
+
+This enables part of the page to be displayed sooner, without waiting for all the data to load before any UI can be rendered.
+
+
+How to break down into chunks?
+
+  React mental model is component driven, each component we can treat as chunk.
+
+eg:
+  if a component have priority or that dont rely on data can be sent first (eg layouts),so the react can hydration eariler....
+  if components has less priority, or depends data to be sent later...
+
+How to implement streaming?
+ You have to split code into segments
+
+1.static code which does not depend on data
+2.dynamic code which depends on data.
+
+if you wrap any component with "Suspense Boundary" which is async, can be rendered later.
+
+if the component relays on data fetching, delays with timers, delays with network connections......
+
+............................................................................................................................................................................................
+
+loading.js
+  	 This is file which has function that function will be suppled fallback UI / loading UI.
+
+
+√ What is your project named? ... streaming-loading
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in G:\IBM\2025\Aug\Nextjs-b1\streaming-loading.
+
+
+
+src/app/components/greeter.jsx
+export default function Greeter(){
+     return <h1>Greeter</h1>
+}
+
+src/app/dashboard/page.js
+import React from 'react'
+
+
+const Welcome = React.lazy(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, 10000, import('../components/greeter'))
+    })
+})
+
+export default function Dashboard() {
+
+    return <div>
+        <h1>Header</h1>
+        <Welcome />
+    </div>
+}
+
+http://localhost:3000/dashboard
+
+After running, you dont see any ui in the browser, because it takes so much time, now we need to enable streaming.
+
+How to enable streaming?
+
+1.Via React.Supsense
+2.loading.js file -  which internally wraps the page within React.Suspense boundary .
+
+
+After adding loading.js
+src/app/dashboard/loading.js
+export default function Fallback(){
+    return <h1>Loading....</h1>
+}
+
+Component Hierachy:
+
+<React.Suspsense fallback={Fallback}>
+	<Page/>
+</Reac.Supsense>
+
+There is another use case where i dont want to put the entire page into React.Supsense only i want to enable portions of the page into React.Suspsense.
+
+
+src/app/components/greeter.jsx
+export default function Greeter(){
+    return <h1>Greeter</h1>
+}
+src/app/components/hello.jsx
+export default function Hello(){
+    return <h1>Hello</h1>
+}
+src/app/components/hai.jsx
+export default function Hai(){
+    return <h1>Hai</h1>
+}
+
+src/app/dashboard/page.js
+import React from "react"
+
+const Welcome = React.lazy(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, 10000, import('../components/greeter'))
+    })
+})
+const Hello = React.lazy(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, 9000, import('../components/hello'))
+    })
+})
+const Hai = React.lazy(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, 8000, import('../components/hai'))
+    })
+})
+export default function DashBoard() {
+
+    return <div>
+        <h1>Header</h1>
+        <React.Suspense fallback={<h1>Welcome is loading...</h1>}>
+            <Welcome />
+        </React.Suspense>
+        <React.Suspense fallback={<h1>Hello is loading...</h1>}>
+            <Hello />
+        </React.Suspense>
+        <React.Suspense fallback={<h1>Hai is loading...</h1>}>
+            <Hai />
+        </React.Suspense>
+        <h2>Footer</h2>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									API calls and Streaming
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+src/app/posts/page.js
+import React, { Suspense } from "react";
+
+//component 
+export async function Posts() {
+    const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        cache: 'no-store'
+    })
+    const posts = await res.json()
+    return <ul className="space-y-2">
+        {posts.slice(0, 5).map(post => {
+            return <li className="p-2 border rounded-lg shadow-sm" key={post.id}>
+                <h3 className="font-bold">{post.title}</h3>
+                <p className="text-sm text-gray-600">{post.body}</p>
+            </li>
+        })}
+    </ul>
+}
+
+const Welcome = React.lazy(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, 10000, import('../components/greeter'))
+    })
+})
+
+export default function PostsPage() {
+
+    return <div className="p-6">
+        <h1 className="text-xl font-bold mb-4">Posts (Heading)</h1>
+        {/* wrap Posts Component into suspense */}
+        <Suspense fallback={<p className="text-blue-600 font-bold">Posts Loading....</p>}>
+           		 <Posts />
+        </Suspense>
+        <Suspense fallback={<p className="text-blue-600 font-bold">Welcome Loading....</p>}>
+            <Welcome />
+        </Suspense>
+        <h2>
+            Footer
+        </h2>
+    </div>
+
+}
 
 
