@@ -5275,5 +5275,151 @@ export default function PostsPage() {
     </div>
 
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Error Handling In next.js
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+JavaScript errors inside components used to corrupt React’s internal state and cause it to emit cryptic errors on next renders.
+
+
+Introducing Error Boundaries:
+
+     A JavaScript error in a part of the UI shouldn’t break the whole app. To solve this problem for React users, React 16 introduces a new concept of an “error boundary”.
+
+    Error boundaries are React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of the component tree that crashed.
+
+Error Boundaries in Next.js:
+&&&&&&&&&&&&&&&&&
+  Error handling in next.js is built up on React error boundaries and extends them with spcific next.js features for both server and client components.
+
+Types of Errors In Next.js:
+
+1.Page specific errors -  error.js
+2.API Route Errors - error.js
+3.Global errors -global-error.js or error.js
+4.Not-Found Pages - not-found.js
+
+Error Handling Strategies:
+
+1.Excepted Errors -  form validation, failed data fetches
+2.UnCaught Exceptions - Handleded with help of errorboundaries - error.jsx
+3.404 Handling  - not-found.jsx - notFound()
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										UnCaught Exceptions
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+√ What is your project named? ... exception-app
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+app/users/[id]/
+|	page.jsx	
+|	error.jsx
+|	layout.jsx
+||	loading.jsx
+|	
+ not-found-jsx
+ error-jsx or global-error.jsx
+
+
+Use case: Route Specfic  Not Found Testing:
+
+app/users/[id]/not-found.jsx
+
+src/app/users/[id]/page.js
+import { notFound } from "next/navigation";
+
+async function getUser(id) {
+  const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+    cache: "no-store",
+  });
+  if (res.status === 404) {
+    notFound(); // triggers app/not-found.jsx
+  }
+  if (!res.ok) {
+    throw new Error("Failed to fetch user"); // triggers error.jsx
+  }
+
+  return res.json();
+}
+
+export default async function UserPage({ params }) {
+  const user = await getUser((await params).id);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-bold">User Details</h1>
+      <p><b>ID:</b> {user.id}</p>
+      <p><b>Name:</b> {user.name}</p>
+      <p><b>Email:</b> {user.email}</p>
+    </div>
+  );
+}
+
+Testing;
+http://localhost:3000/users/1
+
+Response:
+
+User Details
+ID: 1
+Name: Leanne Graham
+Email: Sincere@april.biz
+
+http://localhost:3000/users/999
+
+404 - User Not Found
+The user you are looking for doesn’t exist.
+
+Now here  the not-found.js is automatically caught.
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								Use case: Global Not Found Testing
+***********************************************************************************************************************************************************
+src/app/not-found.jsx
+
+export  default function NotFound(){
+    return <h1 className="text-center mt-10">oops!The Page you requested not found</h1>
+}
+
+Testing :
+http://localhost:3000/posts
+
+You will get error ,and fallback to this NotFound
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										UnCaught Exceptions
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Page secific errors:
+
+src/app/users/[id]/error.jsx
+'use client'
+
+export default function Error({ error, reset }) {
+
+    return <div className="p-4 bg-red-100 rounded">
+        <h2 className="text-red-700 font-bold">Something Went Wrong!</h2>
+        <p>{error.message}</p>
+        <button className="mt-2 px-3 py-1 beg-red-600 text-white rounded" >Try Again</button>
+    </div>
+}
+
+src/app/error.jsx
+'use client'
+
+export default function Error({ error, reset }) {
+
+    return <div className="p-4 bg-red-100 rounded">
+        <h2 className="text-red-700 font-bold">Something Went Wrong!</h2>
+        <p>{error.message}</p>
+        <button className="mt-2 px-3 py-1 beg-red-600 text-white rounded" >Try Again</button>
+    </div>
+}
+This is global error handler, which is called for any error in your app.
 
