@@ -5527,3 +5527,470 @@ export default async function TimeCachePage() {
         <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
     </div>
 }
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								   Cache Configuration via Route Segment Options
+
+Route Segment options are global variables provided by next.js to supply global settings or page level or layout level settings.
+https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
+Every segment options variable must be exported by default when we override in our code where ever, like page,layout,root layouer
+syntax
+export const variableName=overridenValue
+
+eg:
+
+src/app/timecache/[city]/page.js
+//route segment options
+//to enable cache
+// export const fetchCache = 'force-cache'
+
+//to disable cache
+
+export const fetchCache = 'force-no-store'
+
+
+export async function getTime() {
+    const url = `https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata`
+    const response = await fetch(url, { cache: 'force-cache' })
+    return await response.json()
+}
+export async function getTime_v2() {
+    const url = `https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata`
+    const response = await fetch(url)
+    return await response.json()
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    const data1 = await getTime_v2()
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now V1: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+        <h1 className="font-bold">Time Now V2: {new Date(data1.dateTime).toLocaleTimeString()}</h1>
+
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								Layout or root layout level route Segment options
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+if you define segments options in layout level or root layout level, that options will be applied across the application or with in the nested layout level.
+src/app/layout.js
+ 
+export const fetchCache = 'force-no-store'
+
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+
+Based on the above code, the cache will be enabled across the application
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Can we override global settings 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+We can override the global settings inside page or layout or as part of fetch api.
+
+
+src/app/timecache/[id]/page.js
+
+//route segment option
+//disable cache for this page
+export const fetchCache = 'force-no-store'
+
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    //next js has extended fetch api to support server cache.
+    //{cache:'force-cache'} - option only for next js not for regular apis
+
+    // const response = await fetch(url, { cache: 'force-cache' })
+    const response = await fetch(url)
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&										Enabling and overriding cache configuration at fetch api level
+
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    //next js has extended fetch api to support server cache.
+    //{cache:'force-cache'} - option only for next js not for regular apis
+
+    // const response = await fetch(url, { cache: 'force-cache' })
+    const response = await fetch(url, { cache: 'no-store' })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+						&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								   Cache Configuration via Route Segment Options
+
+Route Segment options are global variables provided by next.js to supply global settings or page level or layout level settings.
+https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
+Every segment options variable must be exported by default when we override in our code where ever, like page,layout,root layouer
+syntax
+export const variableName=overridenValue
+
+eg:
+
+src/app/timecache/[city]/page.js
+//route segment options
+//to enable cache
+// export const fetchCache = 'force-cache'
+
+//to disable cache
+
+export const fetchCache = 'force-no-store'
+
+
+export async function getTime() {
+    const url = `https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata`
+    const response = await fetch(url, { cache: 'force-cache' })
+    return await response.json()
+}
+export async function getTime_v2() {
+    const url = `https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata`
+    const response = await fetch(url)
+    return await response.json()
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    const data1 = await getTime_v2()
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now V1: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+        <h1 className="font-bold">Time Now V2: {new Date(data1.dateTime).toLocaleTimeString()}</h1>
+
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+								Layout or root layout level route Segment options
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+if you define segments options in layout level or root layout level, that options will be applied across the application or with in the nested layout level.
+src/app/layout.js
+ 
+export const fetchCache = 'force-no-store'
+
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+
+Based on the above code, the cache will be enabled across the application
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Can we override global settings 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+We can override the global settings inside page or layout or as part of fetch api.
+
+
+src/app/timecache/[id]/page.js
+
+//route segment option
+//disable cache for this page
+export const fetchCache = 'force-no-store'
+
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    //next js has extended fetch api to support server cache.
+    //{cache:'force-cache'} - option only for next js not for regular apis
+
+    // const response = await fetch(url, { cache: 'force-cache' })
+    const response = await fetch(url)
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&										Enabling and overriding cache configuration at fetch api level
+
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    //next js has extended fetch api to support server cache.
+    //{cache:'force-cache'} - option only for next js not for regular apis
+
+    // const response = await fetch(url, { cache: 'force-cache' })
+    const response = await fetch(url, { cache: 'no-store' })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Revalidation: How to clear the cache 
+...........................................................................................................................................................................................................................................
+
+There are two ways we can clear the cache
+1.Time based revalidation
+2.OnDemand Revalidation
+
+Time based revalidation;
+ You can clear the cache based on timer or timeout
+
+revalidation value can be given as part of the fetch or part of page/layout as "route segement options"
+
+Time based revalidation as part of fetch api
+.................................................................................
+//With cache and revalidation with timer
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    const response = await fetch(url, { cache: 'force-cache', next: { revalidate: 2 } })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    return <>
+        <h1 className="font-bold">Time Now: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </>
+}
+
+Time based revalidation as part of page or layout as route segement option
+
+//route segment option
+// export const fetchCache = 'default-cache'
+export const revalidate = 2
+export const fetchCache = 'default-cache'
+
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    //cache will be cleared after every 2sec
+    // const response = await fetch(url, { cache: 'force-cache', next: { revalidate: 2 } })
+    const response = await fetch(url, { next: {revalidate: 2}})
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+
+    return <div className="m-20">
+        <h1 className="font-bold">Time Now : {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </div>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									OnDemand Revalidation
+.......................................................................................................................................................................................................................
+
+OnDemand revalidation is done via api call, when you call api, validation triggers
+
+Steps:
+1.You have to write rest api, which revalidates cache.
+ 1..1. You can use path 
+ 1..2. You can use tag
+ 1..3  You can use both
+
+
+Path Based:
+ Based on url we can clear cache
+
+/api/products - clear the cache related to products route
+
+src/app/api/revalidate/route.js
+import { revalidatePath } from "next/cache"
+import { NextResponse } from "next/server"
+
+export async function GET(request, { params }) {
+    //get the path of the revalidation
+    const path = request.nextUrl.searchParams.get('path') || '/timecache/Kolkata'
+    //call revalidate api
+    revalidatePath(path)
+    return NextResponse.json({ revalidate: true, now: new Date(), cache: 'no-store' })
+
+}
+
+src/app/timecache\[city]\page.js
+//on demand revalidation with path
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    const response = await fetch(url, { cache: 'force-cache' })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    return <>
+        <h1 className="font-bold">Time Now: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </>
+}
+
+Tag Based:
+.....................
+
+src/app/api/revalidate/route.js
+
+export async function GET(request, { params }) {
+    //get the tag of the revalidation
+    const tag = request.nextUrl.searchParams.get('timerTag') || 'timerTag'
+    //call revalidate api
+    revalidateTag(tag)
+    return NextResponse.json({ revalidate: true, now: new Date(), cache: 'no-store' })
+
+}
+//on demand revalidation with tag
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    const response = await fetch(url, {
+        cache: 'force-cache', next: {
+            tags: ['timerTag']
+        }
+    })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    return <>
+        <h1 className="font-bold">Time Now: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </>
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										ISR
+							SSG + Caching + Revalidation = ISR
+				   		     		ISR- Incremental Static Rendering
+............................................................................................................................................................................................................
+
+ISR  =SSG +Caching + Revalidation.
+
+SSG:
+  -Building pages during build time.
+  -Incase if page uses data that means fetching data from apis,that data only used    during build phase
+  -page is built and cache it 
+  
+Revalidation:
+  -When we want fresh data for the page
+  -during revalidation, cache is cleared so that the page also need to be    rerendered..
+
+"Incrementatal static rendering is nothing but create pages during build time and cache it, if any data change for the particular page, re render that page, after clearing the cache either by using time based or on demand or both"
+
+ISR = SSR + Staic Renderning + Dynamic Rendering + SSG +request time
+
+
+How to implement ISR?
+
+1.Enable Cache
+2.Select Revalidation pattern
+3.override generateStaticParams method where you have to generate page, after build time, the page is cached.
+4.revalidate the pre build page, using revalidation pattern so that the page is rebuilt.
+
+During SSG, the pages are cached by default.
+
+Once the app is gone to the production, after that if you want to rebuild page you can apply revalidation process.
+
+ISR = SSG + Revalidation.
+
+Eg:
+export async function getTime() {
+    const url = 'https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Kolkata'
+    const response = await fetch(url, {
+        cache: 'force-cache', next: {
+            tags: ['timerTag']
+        }
+    })
+    const data = await response.json()
+    return data
+}
+
+export default async function TimeCachePage() {
+    const data = await getTime()
+    return <>
+        <h1 className="font-bold">Time Now: {new Date(data.dateTime).toLocaleTimeString()}</h1>
+    </>
+}
+export async function generateStaticParams() {
+    return [{
+        city: 'Kolkata'
+    }]
+}
+
+Testing:
+pm run build
+
+> caching-isr@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.10
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+ ✓ Linting and checking validity of types
+ ✓ Collecting page data
+ ✓ Generating static pages (7/7)
+ ✓ Collecting build traces
+ ✓ Finalizing page optimization
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    5.25 kB        92.3 kB
+├ ○ /_not-found                          871 B          87.9 kB
+├ ƒ /api/revalidate                      0 B                0 B
+└ ● /timecache/[city]                    137 B          87.2 kB
+    └ /timecache/Kolkata
++ First Load JS shared by all            87.1 kB
+  ├ chunks/23-8d0b25cd7d597713.js        31.6 kB
+  ├ chunks/fd9d1056-2821b0f0cabcd8bd.js  53.6 kB
+  └ other shared chunks (total)          1.86 kB
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+nextjs\caching-isr>npm start
+
+> caching-isr@0.1.0 start
+> next start
+
+  ▲ Next.js 14.2.10
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 418ms
+

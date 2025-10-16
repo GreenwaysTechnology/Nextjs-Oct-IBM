@@ -19,8 +19,3 @@ export default async function TimeCachePage() {
         <h1 className="font-bold">Time Now : {new Date(data.datetime).toLocaleTimeString()}</h1>
     </div>
 }
-export async function generateStaticParams() {
-    return [{
-        city: 'Kolkata'
-    }]
-}
