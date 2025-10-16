@@ -5994,3 +5994,488 @@ nextjs\caching-isr>npm start
  ✓ Starting...
  ✓ Ready in 418ms
 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Authentication &&  Authorization using Session Tracking
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										"Next.js Session Tracking", 
+you’re probably looking for ways to keep track of a user’s session (login state, cart, preferences, etc.) across requests and page reloads.
+
+🔑 Common Approaches for Session Tracking in Next.js
+
+1. Using Cookies (Recommended for Server-Side Auth)
+
+	Store session identifiers (like a JWT or session ID).
+	Accessible both on server components and API routes.
+	Secure with HttpOnly, SameSite, and Secure.
+
+Example with cookies API (Next.js App Router):
+
+Setup Next.js project
+Login API route → validate user & set cookie
+Logout API route → clear cookie
+Middleware → protect routes
+Dashboard page → show session state
+Client-side login form
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+						Use case : User name/password authentication using dummy sessionId								   
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ What is your project named? ... authautorize-plainsession
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in G:\IBM\2025\Aug\Nextjs-b1\authautorize-plainsession.
+
+steps: 1. login process: assume that i have registried users already, here i am going to use some dummy user name and password.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									Authentication &&  Authorization using Session Tracking
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										"Next.js Session Tracking", 
+you’re probably looking for ways to keep track of a user’s session (login state, cart, preferences, etc.) across requests and page reloads.
+
+🔑 Common Approaches for Session Tracking in Next.js
+
+1. Using Cookies (Recommended for Server-Side Auth)
+
+	Store session identifiers (like a JWT or session ID).
+	Accessible both on server components and API routes.
+	Secure with HttpOnly, SameSite, and Secure.
+
+Example with cookies API (Next.js App Router):
+
+Setup Next.js project
+Login API route → validate user & set cookie
+Logout API route → clear cookie
+Middleware → protect routes
+Dashboard page → show session state
+Client-side login form
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+						Use case : User name/password authentication using dummy sessionId								   
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+			
+ What is your project named? ... authautorize-plainsession
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in G:\IBM\2025\Aug\Nextjs-b1\authautorize-plainsession.
+
+Step 0: I am going to skip registration process, you can assume that i have dummy user name and password
+
+steps: 1. login process: assume that i have registried users already, here i am going to use some dummy user name and password.
+
+src/app/api/login/route.js
+import { cookies } from "next/headers"
+
+export async function POST(req) {
+    const { username, password } = await req.json()
+
+    //look up the user name and password from the db in realtime
+    if (username === 'admin' && password === '123') {
+        //generate sessionId in realtime but now we use dummy session Id
+        const sessionToken = "user-123"
+        //create cookie and append sessionId as part of cookie
+        const cookieStore = await cookies()
+        //set cookie information
+        cookieStore.set("session", sessionToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            path: '/',
+            maxAge: 60 * 60 //1 hour valid
+        })
+        return Response.json({ success: true })
+    }
+    return Response.json({ success: false, message: 'Invaild Credentials' }, { status: 401 })
+}
+
+
+src/app/api/logout/route.js
+
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+export async function POST(){
+    const cookieStore = await cookies()
+    cookieStore.delete("session")
+    redirect('/')
+}
+
+&&&&&&&&&&&&&&&&&*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									UI - login form
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+login should be client component to send user name and password.
+
+src/app/login/components/Login.jsx
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function Login() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const router = useRouter();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setError("");
+
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+        });
+
+        if (res.ok) {
+            router.push("/dashboard"); // redirect on success
+        } else {
+            const data = await res.json();
+            setError(data.message || "Login failed");
+        }
+    }
+
+    return (
+        <div className="p-6 max-w-md mx-auto">
+            <h1 className="text-xl font-bold mb-4">Login</h1>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <input
+                    className="border p-2 rounded"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+                <input
+                    type="password"
+                    className="border p-2 rounded"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                {error && <p className="text-red-500">{error}</p>}
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white py-2 rounded"
+                >
+                    Login
+                </button>
+            </form>
+        </div>
+    );
+}
+
+src/app/login/page.js
+import Login from "@/app/login/components/Login";
+
+export default function LoginPage() {
+    return <div>
+        <Login />
+    </div>
+}
+
+src/app/dashboard/page.js
+import { cookies } from "next/headers"
+
+export default async function Dashboard() {
+    // read cookie
+    const cookieStore = await cookies()
+    console.log(cookieStore.get("session").value)
+    const userKey = cookieStore.get("session").value
+    return <div className="m-25">
+        <h1>Welcome to {userKey} </h1>
+    </div>
+}
+
+In the above example we show the user plain cookie
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											Logout
+After landing to dashboard, you have to have logout button, when you logout, the cookies and associcated tokens must be deleted.
+
+src/app/dashboard/page.js
+import { cookies } from "next/headers"
+
+export default async function Dashboard() {
+    // read cookie
+    const cookieStore = await cookies()
+    // console.log(cookieStore.get("session").value)
+    // const userKey = cookieStore.get("session").value
+    const session = cookieStore.get("session")
+    return (
+        <div className="p-6">
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            {session ? (
+                <>
+                    <p>Welcome, user with session: {session.value}</p>
+                    <form action="/api/logout" method="post">
+                        <button className="bg-red-500 text-white px-4 py-2 rounded mt-4">
+                            Logout
+                        </button>
+                    </form>
+                </>
+            ) : (
+                <p>You are not logged in.</p>
+            )}
+        </div>
+    );
+
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										Authorization
+
+What if i access the dashboard without login
+
+http://localhost:3000/dashboard
+
+Response:
+Dashboard
+You are not logged in.
+
+i am able to see the dasboard page even though without login, but i dont to want to even enter into dashboard page without login.
+You have to apply authorization process.
+
+Who can access what ,after login.
+
+How to implement authorization in next.js?
+
+Middlewares
+
+What is middleware?
+    middleware is function has code to authorize the user and show pages accordingly.
+
+src/middleware.js
+   
+  This code is called before any route is accessed.
+  middleware is function which takes input as req object and return response object
+
+import { NextResponse } from "next/server"
+
+export function middleware(req) {
+    console.log("middleware is called")
+    const session = req.cookies.get("session")?.value
+    if (req.nextUrl.pathname.startsWith("/dashboard") && !session) {
+        return NextResponse.redirect(new URL("/login", req.url))
+    }
+    return NextResponse.next()
+}
+//authroization configuration
+export const config = {
+    mather: ["/dashboard/:/path*"]
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										JWT token based auth
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Instead of storing a plain session ID in the cookie, we’ll store a signed JWT token containing user info.
+
+🔄 Flow with JWT
+
+User logs in → /api/login issues JWT with user info → stored in secure cookie.
+Middleware checks and validates JWT before accessing /dashboard.
+Server components (cookies() + verifyJwt) can decode session.
+Logout → cookie deleted.
+
+
+JWT:
+npx create-next-app@latest
+√ What is your project named? ... authauthorize-jwttoken
+√ Would you like to use TypeScript? ... No / Yes
+√ Which linter would you like to use? » None
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack? (recommended) ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+
+
+npm install jose
+
+src/app/lib/jwt.js
+import { SignJWT, jwtVerify } from "jose";
+
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "super-secret-key");
+
+//sign JWT
+export async function signJWT(payload) {
+    return await new SignJWT(payload)
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("1h") // 1 hour expiry
+        .sign(SECRET);
+}
+//verify JWT token is it valid or not
+export async function verifyJwt(token) {
+    try {
+        const { payload } = await jwtVerify(token, SECRET);
+        return payload;
+    } catch (err) {
+        console.error("JWT verify error:", err.message);
+        return null;
+    }
+}
+
+src/app/api/login/route.js
+import { cookies } from "next/headers";
+// import { signJWT } from "../../lib/jwt";
+import { signJWT } from '@/app/lib/jwt'
+export async function POST(req) {
+    const { username, password } = await req.json();
+
+    // ✅ Replace with real authentication
+    if (username === "admin" && password === "123") {
+        // Create session token (in real apps use JWT or DB session id)
+        const token = await signJWT({ username, role: "admin" });
+        const cookieStore = await cookies()
+        cookieStore.set("session", token, {
+            httpOnly: true,   // cannot be accessed by JS
+            secure: process.env.NODE_ENV === "production",    // only over HTTPS
+            sameSite: "strict",
+            path: "/",
+            maxAge: 60 * 60,  // 1 hour
+        });
+        return Response.json({ success: true });
+    }
+
+    return Response.json({ success: false, message: "Invalid credentials" }, { status: 401 });
+}
+
+
+src/app/api/logout.js
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+export async function POST() {
+  const cookieStore = await cookies()
+  cookieStore.delete("session"); // removes the cookie
+  redirect('/')
+}
+
+src/app/components/Login.jsx
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function Login() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const router = useRouter();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setError("");
+
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+        });
+
+        if (res.ok) {
+            router.push("/dashboard"); // redirect on success
+        } else {
+            const data = await res.json();
+            setError(data.message || "Login failed");
+        }
+    }
+
+    return (
+        <div className="p-6 max-w-md mx-auto">
+            <h1 className="text-xl font-bold mb-4">Login</h1>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <input
+                    className="border p-2 rounded"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+                <input
+                    type="password"
+                    className="border p-2 rounded"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                {error && <p className="text-red-500">{error}</p>}
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white py-2 rounded"
+                >
+                    Login
+                </button>
+            </form>
+        </div>
+    );
+}
+
+src/app/login/page.js
+import Login from "@/app/login/components/Login";
+
+export default function LoginPage() {
+    return <div>
+        <Login />
+    </div>
+}
+
+src/app/dashboard/page.js
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/app/lib/jwt";
+
+export default async function Dashboard() {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("session")?.value;
+    const session = token ? await verifyJwt(token) : null;
+    console.log(session)
+    return (
+        <div className="p-6">
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            {session ? (
+                <>
+                    <p>Welcome, user with session: {session.username} </p>
+                    <form action="/api/logout" method="post">
+                        <button className="bg-red-500 text-white px-4 py-2 rounded mt-4">
+                            Logout
+                        </button>
+                    </form>
+                </>
+            ) : (
+                <p>You are not logged in.</p>
+            )}
+        </div>
+    );
+}
+
+src/middleware.js
+import { NextResponse } from "next/server";
+import { verifyJwt } from "@/app/lib/jwt";
+
+
+export async function middleware(req) {
+  const token = req.cookies.get("session")?.value;
+  const session = token ? await verifyJwt(token) : null;
+
+  // Protect /dashboard
+  if (req.nextUrl.pathname.startsWith("/dashboard") && !session) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*"],
+};
+
+Task:
+ 1.Registration
+	You have to write logic to register user inside db - u can use prisma lib /sqlite db
+
