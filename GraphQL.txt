@@ -1,0 +1,790 @@
+...............................................................................................................................................................................................................	
+											GraphQL
+...............................................................................................................................................................................................................
+What is GraphQL?
+	GraphQL is a "new API" standard that provides a more efficient, powerful and flexible alternative to REST.
+
+
+Drawbacks of REST:
+
+1.Fixed Data structures:
+   REST end points return fixed data structure, even if you need only part of the response.
+eg:
+   /users endpoint might return all user fields (name ,id, email, address etc...), where i need only few fields like name, email.
+
+2.Under fetching:
+	 You may need to call multiple endpoints to get all required data for one view.
+			/users,/posts,/comments
+
+
+Why GraphQL or History of GraphQL?
+
+	At its core, GraphQL enables "declarative data fetching" where a client can specify exactly what data it needs from an API.
+
+GraphQL was created by Face book engineers at 2012.
+GraphQL was published as open source project on GitHub 2015.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+										GraphQL Implementation
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+GraphQL was created for any language - language independent.
+
+The first implementation GraphQL was available in java script.
+
+The GraphQL implementation is available in two areas
+
+1.Server side
+2.Client side
+
+REST API:
+Rest spec is based on spec called REST spec
+			https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
+
+
+GraphQL API :
+  It is also based on specification.
+
+Server Side Spec:
+    GraphQL Schema language  Specification 
+
+Client Side Spec:
+   GraphQL Query language specification     
+
+
+End point implementation:
+
+REST:
+
+GET /api/products
+POST /api/products
+PUT /api/products/id
+DELETE /api/products/id
+
+GET /api/customers
+POST /api/customers
+PUT /api/customers/id
+DELETE /api/customers/id
+
+GraphQL:
+
+1.Query
+   read
+2.mutation
+   create, update, delete
+3.subscription
+   Streaming
+
+
+URL pattern:
+
+REST:
+  Each Resource must be identified by unique URL
+   Product  - /api/products  -  GET,POST,DELETE,PUT
+   Customer  -/api/customers - GET,POST,DELETE,PUT
+ 
+GraphQL :
+  For entire application only one URL
+   /GraphQL   -POST
+ Each resource is called as Object , having methods which are mapped by GraphQL schema language
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+									GraphQL Query language
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Talks to GraphQL server application.
+How to send and read data from the Server
+
+Concepts:
+
+=>Query encapsulation
+=>Query header
+=>Query api
+=>fields
+=>arguments
+=>aliases
+=>fragments
+=>variables
+=>directives
+=>mutations
+=>inline fragments
+
+If you want to learn query language we need api.
+
+i am going to use mock apis.
+
+https://countries.trevorblades.com/
+
+Client tools:
+
+1.post man
+2.online browser based tool.
+ https://studio.apollographql.com/sandbox/explorer
+
+GraphQL offers many api types
+
+1.READ - GET In Rest - Query in GraphQL 
+2.CREATE-POST In REST - mutation in GraphQL
+3.UPDATE-PUT In REST - mutation in GraphQL
+2.DELETE-DELETE In REST - mutation in GraphQL
+
+We are going to see Read - Query
+.........................................................
+
+Client will send request to GraphQL server as like below
+
+Syntax:
+
+1.Selection Set
+
+ SelectionSet  {Selection} => Query Encapsulation.
+
+ SelectionSet could be "query, mutation, subscription"
+
+ query  {Selection}
+  or
+ mutation  {Selection}
+  or
+ subscription  {Selection}
+
+Selection:
+
+ apiname (method)
+    returns
+     -fields
+     -fragment spread
+     -inline fragment
+
+syntax
+  api {
+    field1
+    fiedl2
+    field3
+  }
+
+Full eg with selection set
+
+query {
+ api {
+    field1
+    fiedl2  --------------------->Server------response-json
+    field3
+ }
+ }
+
+selection set is "query" - to read 
+api - name of the method
+fields means the data variables
+
+Operation and Selection Set
+
+//read =>GET
+query {
+person{
+  firstname
+  lastname
+  age
+ }
+}
+
+//Write
+mutation createUser(params){
+  createuser(params) {
+     id
+     name
+  }
+}
+//streaming
+subscription getPriceQuote(params) {
+ getPrice(params) {
+   price
+   name
+ }
+ 
+}
+
+Use Case: Simple Query
+
+# Request
+query {
+  countries {
+    name
+  }
+}
+....................................................................................
+			    Query Syntax
+...................................................................................
+
+1.with query  keyword
+query {
+  countries {
+    name
+    code 
+    capital
+    currency
+    emoji
+    
+  }
+}
+2.without query keyword
+# Request
+{
+  countries {
+    name
+    code
+    capital
+    currency
+    emoji
+  }
+}
+
+3.Query with "Header" - Query Header
+
+ Query header is just dummy name to identify the type of query.
+ This looks like "method Name",
+ Which can any name.
+
+# Request
+query GETCounterInfo {
+  countries {
+    name
+    code
+    capital
+    currency
+    emoji
+  }
+}
+.............................................................................................................................................................................................................
+									Nested Fields
+.............................................................................................................................................................................................................
+
+REST:
+
+GET	/posts
+GET	/posts/1
+GET	/posts/1/comments
+
+Here comments is nested data structure.
+
+Use case: Query can ask nested data.
+
+# Request
+query GETCounteryInfo {
+  countries {
+    name
+    code
+    capital
+    currency
+    emoji
+    states {
+      code
+      name
+    }
+  }
+}
+Response:
+"data": {
+    "countries": [
+      {
+        "name": "Andorra",
+        "code": "AD",
+        "capital": "Andorra la Vella",
+        "currency": "EUR",
+        "emoji": "🇦🇩",
+        "states": []
+      },
+      {
+        "name": "United Arab Emirates",
+        "code": "AE",
+        "capital": "Abu Dhabi",
+        "currency": "AED",
+        "emoji": "🇦🇪",
+        "states": []
+      }
+   }
+}
+  .............................................................................................................................................................................................................
+							Args and parameters
+...............................................................................................................................................................................................................
+
+What if i want to get data based on some condition or conditions
+ parameters
+
+Parameters could be hardcoded which is called static params
+Parameters could be dynamic  which is called dynamic params
+
+Syntax:
+query getUser { 
+     user(variableName:value) {
+	fields
+     }
+}
+Hardcoded or static parameter
+......................................................
+eg:
+query GETCOUNTRY_BYCODE {
+  country(code: "IN") {
+    name
+    code
+    languages {
+      name
+    }
+  }
+}
+..........................................................................................................................................................................................................	
+								  Dynamic parameters
+..........................................................................................................................................................................................................
+
+Variables:
+ Variables are place holder to have dynamic values which are passed from outside.
+  in case of client app, you can pass via programs.
+
+How to use variables?
+  Variables are used with "$VariableName" convention.
+
+Steps:
+1.Declare variable with data type as part of the query header
+
+Syntax:
+ query queryHeader($variableName:DataType){
+    apiName(variableName:$variableName){
+     fields
+   }
+ }
+
+query GETCOUNTRY_BYCODE($code: ID!) {
+  country(code: $code) {
+    name
+    code
+    languages {
+      name
+    }
+  }
+}
+
+Variables:
+{
+  "code": "AU"
+}
+Data Types:
+ GraphQL provides language independent data types.
+
+Data Types:
+Scalar types(primitives)
+ ID
+ String
+ Float
+ Int
+ Enum
+ Boolean
+
+Complex Types(Object Types)
+ Objects-Customer, Country, Continent
+ Input- Special complex type-Primarily for passing complex input which is eq to DTO
+
+
+Default Values:
+
+query GETCOUNTRY_BYID($code:ID!="IN") {
+  country(code:$code) {
+    name
+    capital
+    currency
+    phone
+  }
+}
+with out variables we get India information
+
+with variables we get information based on variable value
+variables:
+{
+  "code": "US"
+}
+
+...................................................................................
+How to pass complex types or input types?
+
+query:
+query GETLANGUAGE_INFO($filter:LanguageFilterInput) {
+   languages(filter:$filter){
+     code 
+     name
+   }
+}
+variables:
+{
+  "filter": {
+    "code": {
+      "eq": "en"
+    }
+  }
+}
+{
+  "data": {
+    "languages": [
+      {
+        "code": "en",
+        "name": "English"
+      }
+    ]
+  }
+}
+..............................................................................................................................................................................................................
+									Aliases
+............................................................................................................................................................................................................
+
+incase if you want field name differently or if you think that some duplicate fields are coming.
+
+id - userId
+
+Field  aliases gives a dummy name for keys.
+
+without aliases:
+
+{
+ user(id:1){
+   id
+   name
+ }
+}
+
+Response:
+{
+ "data" : {
+   "user": {
+       "id":1,
+       "name:: "Subramanian"
+     }
+ }
+}
+With aliases:
+ {
+   subramanian:user(id:1){
+     id
+     name
+    }
+ }
+
+{
+ "data" : {
+   "subramanian": {
+       "id":1,
+        "name:: "Subramanian"
+     }
+ }
+}
+
+eg:
+query GETLANGUAGE_INFO($filter:LanguageFilterInput) {
+  mylang:languages(filter:$filter){
+     languagecode:code 
+     languageName:name
+   }
+}	
+variables:
+{
+  "filter": {
+    "code": {
+      "eq": "en"
+    }
+  }
+}
+Response:
+
+{
+  "data": {
+    "mylang": [
+      {
+        "languagecode": "en",
+        "languageName": "English"
+      }
+    ]
+  }
+}
+
+..............................................................................................................................................................................................................
+										Fragments
+.............................................................................................................................................................................................................
+
+What if i have some fields, duplicated across many apis, in order to avoid duplicates fragments are used.
+
+Without Fragment
+Syntax:
+
+query {
+  user(id:2){
+   friends {
+      id
+      name
+      pic
+     }
+    mutalfriends {
+      id
+      name
+      pic
+     }
+  }
+
+}
+With Fragments:
+
+query {
+  user(id:2){
+   
+     friends {
+        ...friendsFields
+     }
+     mutalfriends {
+        ...friendsFields
+     }
+  }
+
+}
+framents friendsFields on User{
+      id
+      name
+      pic
+}
+
+..............................................................................................................................................................................................................
+										Fragments
+.............................................................................................................................................................................................................
+
+What if i have some fields, duplicated across many apis, in order to avoid duplicates fragments are used.
+
+Without Fragment
+Syntax:
+
+query {
+  user(id:2){
+   friends {
+      id
+      name
+      pic
+     }
+    mutalfriends {
+      id
+      name
+      pic
+     }
+  }
+
+}
+With Fragments:
+
+query {
+  user(id:2){
+   
+     friends {
+        ...friendsFields
+     }
+     mutalfriends {
+        ...friendsFields
+     }
+  }
+
+}
+framents friendsFields on User{
+      id
+      name
+      pic
+}
+
+eg:
+query countries {
+  countries {
+     ...CountryFields
+  }
+}
+fragment CountryFields on Country{
+  code
+  name
+}
+{
+  "data": {
+    "countries": [
+      {
+        "code": "AD",
+        "name": "Andorra"
+      },
+      {
+        "code": "AE",
+        "name": "United Arab Emirates"
+      }
+    ]
+ }
+..............................................................................................................................................................................................................
+			   						Directives
+...........................................................................................................................................................................................................
+Directives are built in functions which provides some utilities.
+
+Syntax:
+   @directiveName(params)
+
+GraphQL supports two basic directives
+
+1.@include(if:boolean)
+2.@skip(if:boolean)
+  
+  These directives are used to include or exclude fields automatically.
+
+@include(if:Boolean)
+   only include "this field" in the result if the arg is true
+@skip(if:Boolean)
+   exclude /skip "this field" in the result if the arg is true.
+
+Syntax:
+
+query GetProfileHeader{
+    getProfile($id:Int,$withFriends:Boolean=false) {
+	profile(id:$id) {
+	   id
+           name
+	   friends @include(if:$withFriends)
+	
+        }
+
+    }
+}
+eg:
+query LanguageInfo($code: ID! = "en", $rtl: Boolean! = false) {
+  language(code: $code) {
+    name
+    native @include(if: $rtl)
+  }
+}
+
+with skip
+query LanguageInfo($code: ID! = "en", $rtl: Boolean! = false) {
+  language(code: $code) {
+    name
+    native @skip(if: $rtl)
+  }
+}
+
+variables:
+{
+  "code": "en",
+  "rtl": true,
+}
+Response:
+
+  "data": {
+    "language": {
+      "name": "English",
+      "native": "English"
+    }
+  }
+}
+.............................................................................................................................................................................................................
+			    					  Mutation
+..........................................................................................................................................................................................................
+
+How to send payload (data) to GraphQL api?
+
+create update delete
+
+IN REST
+
+HTTP VERB                   Convention in Server
+
+POST                          save
+
+DELETE			  remove
+
+PUT                           update
+
+In GraphQL there is only one end point ,only one URL
+
+
+HTTP VERB       GraphQL verb           Convention in Server
+
+POST             mutation                  save                   
+
+PUT              mutation                  update
+
+DELETE       mutation                  remove
+
+GET               query                        read
+
+ -GET-           subscription              read +Streaming
+                
+                   
+Testing:
+ 
+API url :
+
+https://graphqlzero.almansi.me/api
+                  
+create/insert
+
+mutation CREATEPOST($input:CreatePostInput!){
+  createPost(input:$input){
+     id 
+     title
+     body 
+  }
+}
+
+input:
+{
+  "input": {
+    "title": "Learn graphql",
+    "body": "Grapqhl is one the api technology"
+  }
+}
+Response:
+{
+  "data": {
+    "createPost": {
+      "id": "101",
+      "title": "Learn graphql",
+      "body": "Grapqhl is one the api technology"
+    }
+  }
+}
+
+UPDATE:
+........
+mutation UPDATEPOST($updatedPostId: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $updatedPostId, input: $input) {
+    id
+    title
+    body
+  }
+}
+
+{
+  "updatedPostId": "1",
+  "input": {
+     "title":"Learn grpqhl with Apollo"
+  }
+}
+
+Response:
+{
+  "data": {
+    "updatePost": {
+      "id": "1",
+      "title": "Learn grpqhl with Apollo",
+      "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+    }
+  }
+}
+
+Delete:
+........
+mutation DELETEPOST($id:ID!){
+  deletePost(id: $id)
+}
+
+{
+  "id": "1"
+}
+
+Response:
+{
+  "data": {
+    "deletePost": true
+  }
+}
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+											
