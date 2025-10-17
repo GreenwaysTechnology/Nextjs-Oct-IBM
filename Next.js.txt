@@ -5892,7 +5892,7 @@ export default async function TimeCachePage() {
     </>
 }
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-										ISR
+											ISR
 							SSG + Caching + Revalidation = ISR
 				   		     		ISR- Incremental Static Rendering
 ............................................................................................................................................................................................................
@@ -6270,7 +6270,7 @@ export function middleware(req) {
 }
 //authroization configuration
 export const config = {
-    mather: ["/dashboard/:/path*"]
+    matcher: ["/dashboard/:/path*"]
 }
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 										JWT token based auth

@@ -787,4 +787,484 @@ Response:
   }
 }
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-											
+											........................................................................................................................................................................................................................................
+						 				Server Side
+........................................................................................................................................................................................................................................
+					 			  GraphQL API Implementation
+.......................................................................................................................................................................................................................................
+In order to build apis we have many technologies
+
+1.REST
+2.Graphql
+3.Grpc
+
+How to build REST apis?
+
+  Restfull webservices are built based on "Resources" in the Problem Domain.
+
+Resources are represented by "Object" which expose Data.
+
+Eg:
+ CustomerResource, OrderResource, PaymentResource, CourseResource
+
+Resources are identified by "URL" 
+  => /api/customers GET | POST | DELETE | UPDATE
+
+In GraphQL apps are built based on "Models" Which are objects
+
+What ever language we have to think in terms of Objects
+
+...................................................................................
+GraphQL Schema Language           Programming Language
+....................................................................................
+  Schema                                          class or Object
+
+  Customer                                      class Customer {} | let Customer={}
+
+Object shape is described by "Schema". 
+
+Schema is nothing but "Plan"
+
+In GraphQL context, the "Problem domain"  is represented by "Schema language"
+.......................................................................................................................................................................................................................................
+								SDL - Schema Definition Language
+......................................................................................................................................................................................................................................
+SDL Core concepts:
+............................
+
+1.Type System:
+...............
+   The Type system defines the platform and language independent data types which describe what data can be quired by client.
+
+Schema Type Systems =========================>Programming language Type System
+eg:
+   String           =============================>javascript -string
+
+    Int             ==============================>javascript -number
+
+Client                                      						  Server
+
+ Query ----|SDL-----send request --------    |SDL---Models--->biz logic(services| resolvers)-->Data sources
+
+					  |---->java,kotlin,scala,c#,python -jvm
+					  |---->js,typescript -node
+			SDL implementation|---->
+					  |---->
+					
+	
+
+How to start with SDL?
+
+We need to define type.
+
+syntax:
+ type TypeName{
+    field:Type
+ }
+IN SDL, there is root type, every type is derived from the root type.
+
+type Schema {
+  query:Query
+  mutation:Mutation
+  subscription:Subscription
+}
+
+type Query{}
+
+type Mutation{}
+
+type Subscription{}
+
+type Query {
+  #apis:ReturnType
+  hello:String
+  #api with arg
+  greet(message:String):String
+  user:User
+  customers:[Customer]
+}
+
+type Customer {
+  id:ID
+  name:String
+}
+
+type User{
+ id:ID
+ name:String
+ status:Boolean
+}
+
+Client side 
+
+query {
+ user {
+  id
+  status
+ }
+}
+
+
+type Mutation { 
+ #apis
+ createUser(user:User):User
+ updateUser(id:ID,user:User):User
+}
+
+client
+mutation CRATE_USER($user:User) {
+  createUser(user:$user){
+    id
+    status
+  }
+....................................................................................
+				 Data types In SDL
+.....................................................................................
+
+1.Scalar Types
+   Scalar are like primitives types in the programming languages
+
+1.Int - 32 Bit Signed Integer
+2.String - UTF-8 
+3.Boolean - true or false
+4.Float - Signed Double
+5.ID - String but Serialized string - For unique identification
+
+2.Custom Types/Reference Types/ Object types
+ Similar to classes in object oriented languages like java, C++,C#
+
+type User {
+ id:Int
+ firstName:String
+ lastName:String
+ status:Boolean
+ points:Float
+}
+
+Object can have other Object Type:
+..................................
+  Like has a relationship / Dependency injection
+
+type Address { 
+ city:String
+ state:String
+ country:String
+}
+
+type User {
+ id:Int
+ firstName:String
+ lastName:String
+ status:Boolean
+ points:Float
+ address:Address
+}
+
+Client side 
+
+query {
+ user {
+  id
+  status
+  address  {
+    city
+  }
+ }
+}
+
+....................................................................................
+			Handling null and not null values
+....................................................................................
+
+Client query with data
+
+query {
+  user {
+    name    ------------------> response {name:'Subramanian'}
+  }
+}
+
+Client query without data
+
+query {
+  user {
+    name    ------------------> response {name:null}
+  }
+}
+
+Client is expecting that don't want to include null, if server Includes null , i have to throw an exception.
+ =>Not null field
+
+Syntax:
+   fieldName:Type!
+
+! -Not Null
+type Address { 
+ city:String
+ state:String
+ country:String
+}
+
+type User {
+ id:Int!
+ firstName:String!
+ lastName:String!
+ status:Boolean
+ points:Float
+ address:Address
+}
+
+Here, id ,firstName, lastName cant be null, if there is null value, the server will throw exception.
+
+....................................................................................
+				Collections - List of similar values
+....................................................................................
+The field may have more than one value
+
+ fieldName:[DataType]
+
+Data Type could be scalar or Object Type
+
+eg:
+  products:[Product]
+  users:[User]
+  skills:[String]
+.....................................................................................
+			 Collections and Not Null
+.....................................................................................
+ [{id:1,name:'33'},{id:2,name:'test'},null,{id:3,name:'test'} ]
+
+ languages:[Language!] - Language cant null  [user,,user,null,]
+
+ languages:[Language]! - Array cant null languages: null
+
+ languages:[Language!]! - Language and Array cant be null
+........................................................................................................................................................................................................................................
+								Advanced Types
+.......................................................................................................................................................................................................................................
+
+=>Mutation
+=>Subscription
+=>Input
+=>Enum
+=>Union
+=>Interface
+
+Mutation:
+ For Add,update,delete operations
+
+type Mutation {
+  createUser(id:ID,firstName:String,lastName:String,age:Int):User
+  updatUser(id:ID!,user:User):User
+  removeUser(id:ID):User
+}
+.......................................................................................................................................................................................................................................
+                         									Input
+...................................................................................................................................................................................................................................
+Input type are special object type that allow you to provide hierarchical data as args to fields
+
+type Mutation {
+  createUser(id:ID,firstName:String,lastName:String,age:Int):User
+}
+
+In the above code, you  have passed induvial fields, which is not going to be good.
+
+Can i pass user type
+
+type User {
+ id:ID
+ firstName:String
+ lastName:String
+ age:Int
+}
+type Mutation {
+  createUser(user:User):User
+}
+
+Instead of passing User type, GraphQL offers special object type input
+
+input CreateUserInput {
+ id:ID
+ firstName:String
+ lastName:String
+ age:Int
+}
+
+type Mutation {
+  createUser(user:CreateUserInput):User
+}
+.......................................................................................................................................................................................................................................
+									 GraphQL Application dev
+........................................................................................................................................................................................................................................
+
+You can write code in any language.
+
+Java:
+1.graphql-java
+2.SpringBoot with GraphQL
+3.DGS Framework-Netflix
+etc...
+
+JavaScript:
+
+1.graphql-js.js
+  The JavaScript reference implementation for GraphQL, a query language for APIs created by Facebook.
+
+2.Apollo
+  It is platform for building enterprise GraphQL apps
+  The core of Apollo framework is written on the graphql.js and express.js
+
+GraphQL application can be built using two arch
+ 1.monolith arch
+ 2.Microservices arch.
+
+Apollo Core concepts:
+
+  SuperGraph:
+      Collection of small graphs called super graph
+      A unified network of your organizations microservices and their data sources
+      -All Composed into a single distributed API.
+
+  SubGraph:
+      It represents a single Graph application
+
+  Graph OS:
+     It is cloud platform which hosts super graph and router
+
+   Router :
+      It is composition api , clients will communicate only Router
+     Router internally stiches the schema for data retrieval.
+
+Components of Apollo:
+.....................
+1.Apollo Server : node js server written in express.js
+2.Schema definitions - SDL
+3.Resolvers - Schema Implementations like queries,mutations,subscription
+4.Data Sources -  Database, rest api, any other apis.
+
+Apollo code can be written in "JavaScript or typescript".
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+....................................................................................................
+			Apollo Project setup
+....................................................................................
+
+Required Softwares:
+
+1.node.js latest version
+2.vscode
+
+Project setup :
+
+....................................................................................................
+			Apollo Project setup
+....................................................................................
+
+Required Softwares:
+
+1.node.js latest version
+2.vscode
+
+Project setup :
+
+Step 1:
+\frontend>mkdir apollo-gettingstarted
+
+Step 2:
+\frontend>cd apollo-gettingstarted
+
+\apollo-gettingstarted>npm init --yes
+{
+  "name": "apollo-gettingstarted",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+
+Step 3:
+\apollo-gettingstarted>code .
+
+Step 4:install apollo server dependencies
+
+npm install @apollo/server graphql
+
+Step 5: install type script dependencies
+
+npm i --save-dev typescript @types/node
+
+  "dependencies": {
+    "@apollo/server": "^4.10.5",
+    "graphql": "^16.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "typescript": "^5.5.4"
+  }
+
+script:
+In order to compile and run dev server in watch mode.
+
+npm install --save-dev tsc-watch
+
+package.json
+  "scripts": {
+    "start": "tsc-watch --onSuccess \"node ./dist/index.js"
+  },
+
+tsconfig.json
+{
+    "compilerOptions": {
+        "rootDirs": [
+            "src"
+        ],
+        "outDir": "dist",
+        "lib": [
+            "ES2020"
+        ],
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "types": [
+            "node"
+        ]
+    }
+}
+
+
+Lets verify settings:
+
+src/index.ts
+ console.log('Hello GraphQL')
+
+G:\Wipro\frontend\apollo-gettingstarted>npm start
+
+SDL implementation:
+
+Steps:
+
+1.Define schema
+2.Write biz logic for schema - Resolver
+3.Start Apollo Server
+
+
+Define schema:
+
+There is two way to define schema in apollo
+1.inside code 
+2.outside code as separate file.
+
+
+
+
+
+
+
+
+
+
